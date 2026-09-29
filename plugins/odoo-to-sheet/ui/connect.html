@@ -325,8 +325,9 @@
 
       document.getElementById("database-form").addEventListener("submit", async (event) => {
         event.preventDefault();
+        const databaseForm = event.currentTarget;
         const button = document.getElementById("database-button");
-        const database = event.currentTarget.elements.database.value.trim();
+        const database = databaseForm.elements.database.value.trim();
         if (!activeProfile || !database) return;
         const changingDatabase = Boolean(activeProfileDatabase && activeProfileDatabase !== database);
         const databaseChangeConfirmation = document.getElementById("database-change-confirmation");
@@ -343,7 +344,7 @@
           if (changingDatabase && confirmDatabaseChange.checked) args.confirm_clear_preferences = true;
           const updated = await callTool("update_connection", args);
           activeProfileDatabase = database;
-          event.currentTarget.reset();
+          databaseForm.reset();
           databaseChangeConfirmation.style.display = "none";
           const accessConfirmed = await checkReportAccess(activeProfile);
           if (updated.report_preferences_cleared) {
