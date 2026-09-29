@@ -1,0 +1,20 @@
+{
+  "name": "odoo-to-sheet",
+  "interface": {
+    "displayName": "Odoo To Sheet"
+  },
+  "plugins": [
+    {
+      "name": "odoo-to-sheet",
+      "source": {
+        "source": "local",
+        "path": "./plugins/odoo-to-sheet"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

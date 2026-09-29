@@ -1,0 +1,27 @@
+{
+  "name": "odoo-to-sheet",
+  "version": "0.1.0+codex.20260929065439",
+  "description": "Connect to Odoo, configure reusable sales report filters and columns, and export CSV.",
+  "author": {
+    "name": "Local developer"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Odoo To Sheet",
+    "shortDescription": "Configure and export Odoo sales reports.",
+    "longDescription": "Connect to Odoo, save local connection profiles, reuse or change sale.report domains and columns, and export CSV. Odoo business records are read-only.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "brandColor": "#65466D",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/icon.png",
+    "defaultPrompt": [
+      "Use /odoo2sheet-connect to connect, then /odoo2sheet-salereport to export sale.report data"
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}
