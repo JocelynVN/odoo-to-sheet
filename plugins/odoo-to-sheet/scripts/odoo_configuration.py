@@ -22,30 +22,30 @@ def read_existing_profiles() -> dict:
 
 def add_profile() -> None:
     profiles = read_existing_profiles()
-    name = input("Profile name (for example company-prod): ").strip()
+    name = input("Tên hồ sơ (ví dụ cong-ty-prod): ").strip()
     if not name or any(char in name for char in "/\\\x00"):
-        raise SystemExit("Choose a short profile name without slashes.")
-    url = input("Odoo base URL (for example https://company.odoo.com): ").strip().rstrip("/")
+        raise SystemExit("Hãy chọn tên hồ sơ ngắn và không có dấu gạch chéo.")
+    url = input("URL Odoo (ví dụ https://congty.odoo.com): ").strip().rstrip("/")
     parsed = urlsplit(url)
     if parsed.scheme not in ("http", "https") or not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment:
-        raise SystemExit("Enter a valid http:// or https:// Odoo base URL without credentials or query parameters.")
-    username = input("Odoo login/email: ").strip()
+        raise SystemExit("Hãy nhập URL Odoo hợp lệ bắt đầu bằng http:// hoặc https://, không kèm thông tin đăng nhập hay tham số truy vấn.")
+    username = input("Email đăng nhập Odoo: ").strip()
     if not username:
-        raise SystemExit("Odoo login/email cannot be empty.")
-    database = input("Database name (required for XML-RPC; often optional on Odoo 19): ").strip()
-    print("Authentication: [1] API key  [2] password")
-    auth_choice = input("Choose 1 or 2: ").strip()
+        raise SystemExit("Email đăng nhập Odoo không được để trống.")
+    database = input("Tên cơ sở dữ liệu (bắt buộc với XML-RPC; thường không cần trên Odoo 19): ").strip()
+    print("Cách xác thực: [1] API key  [2] mật khẩu")
+    auth_choice = input("Chọn 1 hoặc 2: ").strip()
     if auth_choice not in ("1", "2"):
-        raise SystemExit("Choose 1 for API key or 2 for password.")
+        raise SystemExit("Hãy chọn 1 cho API key hoặc 2 cho mật khẩu.")
     auth_type = "api_key" if auth_choice == "1" else "password"
-    secret = getpass.getpass("API key/password (input hidden): ")
+    secret = getpass.getpass("API key/mật khẩu (nội dung được ẩn): ")
     if not secret:
-        raise SystemExit("Credential cannot be empty.")
-    output_dir = input(f"CSV output folder [{DEFAULT_OUTPUT_DIR}]: ").strip()
+        raise SystemExit("Thông tin xác thực không được để trống.")
+    output_dir = input(f"Thư mục lưu CSV [{DEFAULT_OUTPUT_DIR}]: ").strip()
     if not output_dir:
         output_dir = str(DEFAULT_OUTPUT_DIR)
-    if name in profiles and input(f"Profile `{name}` exists. Replace it? [y/N]: ").strip().lower() != "y":
-        raise SystemExit("No profile was changed.")
+    if name in profiles and input(f"Hồ sơ `{name}` đã tồn tại. Thay thế? [c/K]: ").strip().lower() != "c":
+        raise SystemExit("Không thay đổi hồ sơ nào.")
     profiles[name] = {
         "url": url,
         "database": database,
@@ -55,14 +55,14 @@ def add_profile() -> None:
         "output_dir": str(Path(output_dir).expanduser().resolve()),
     }
     save_profiles(profiles)
-    print(f"Saved profile `{name}` in {config_path()}. The credential was not displayed.")
-    print("Use the `list_connections` and `describe_model` plugin tools to confirm access.")
+    print(f"Đã lưu hồ sơ `{name}` tại {config_path()}. Thông tin xác thực không được hiển thị.")
+    print("Dùng công cụ plugin `list_connections` và `describe_model` để xác nhận quyền truy cập.")
 
 
 def list_profiles() -> None:
     profiles = read_existing_profiles()
     if not profiles:
-        print("No Odoo connections are configured.")
+        print("Chưa cấu hình kết nối Odoo nào.")
         return
     for name, profile in sorted(profiles.items()):
         print(
@@ -74,21 +74,21 @@ def list_profiles() -> None:
 def remove_profile(name: str) -> None:
     profiles = read_existing_profiles()
     if name not in profiles:
-        raise SystemExit(f"No profile named `{name}` exists.")
-    if input(f"Remove local profile `{name}`? [y/N]: ").strip().lower() != "y":
-        print("No profile was removed.")
+        raise SystemExit(f"Không tìm thấy hồ sơ `{name}`.")
+    if input(f"Xóa hồ sơ cục bộ `{name}`? [c/K]: ").strip().lower() != "c":
+        print("Không xóa hồ sơ nào.")
         return
     del profiles[name]
     save_profiles(profiles)
-    print(f"Removed local profile `{name}`.")
+    print(f"Đã xóa hồ sơ cục bộ `{name}`.")
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Configure local Odoo connection profiles for Odoo To Sheet.")
+    parser = argparse.ArgumentParser(description="Cấu hình hồ sơ kết nối Odoo cục bộ cho Odoo To Sheet.")
     subparsers = parser.add_subparsers(dest="action", required=True)
-    subparsers.add_parser("add", help="Add or replace a connection profile using a hidden credential prompt")
-    subparsers.add_parser("list", help="List configured profile names and non-secret settings")
-    remove_parser = subparsers.add_parser("remove", help="Remove a local connection profile")
+    subparsers.add_parser("add", help="Thêm hoặc thay thế hồ sơ kết nối; thông tin xác thực được nhập ẩn")
+    subparsers.add_parser("list", help="Liệt kê tên hồ sơ và thông tin cài đặt không bí mật")
+    remove_parser = subparsers.add_parser("remove", help="Xóa hồ sơ kết nối cục bộ")
     remove_parser.add_argument("name")
     args = parser.parse_args()
     if args.action == "add":

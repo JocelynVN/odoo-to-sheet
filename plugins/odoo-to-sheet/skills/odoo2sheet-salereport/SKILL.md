@@ -1,57 +1,67 @@
 ---
 name: odoo2sheet-salereport
-description: Export configurable rows from Odoo's sale.report model to CSV. Ask whether to reuse the last saved domain and columns or set new ones; suggest only filters and fields confirmed from live model metadata.
+description: Xuất dữ liệu báo cáo bán hàng sale.report của Odoo thành CSV. Dùng khi người dùng yêu cầu báo cáo bán hàng hoặc gọi /odoo2sheet-salereport.
 ---
 
-# Odoo sale.report to CSV
+# Xuất sale.report sang CSV
 
-Use `/odoo2sheet-salereport <request>` for an Odoo sales analysis export. The target model is always `sale.report`. The user's profile, domain, and selected columns may differ by Odoo service/version and are stored locally when the user asks to save them.
+Luôn trả lời bằng tiếng Việt, trừ khi người dùng yêu cầu rõ ràng ngôn ngữ khác. Không yêu cầu người dùng tự viết domain Odoo hoặc tự liệt kê tên trường kỹ thuật để dùng được luồng cơ bản.
 
-## Step 1: choose the Odoo service
+## Quy tắc đặt câu hỏi
 
-1. Call `list_connections`. If none are configured, point the user to `/odoo2sheet-connect` and stop before querying Odoo.
-2. If there is one profile, use it. If there are several, ask the user to choose by profile name/service URL. Never ask them to paste credentials into this report request.
-3. Call `describe_model` for `sale.report`. Use its current labels, technical names, types, relations, and selection values for every later suggestion. If Odoo has no accessible `sale.report`, report that fact and stop; do not substitute `sale.order` or another model.
-4. Call `get_report_preferences` for the selected profile and `sale.report`.
+- Hỏi từng nội dung thành câu ngắn có nhãn riêng; không gộp nhiều yêu cầu vào một đoạn dài. Bộ lọc, cột và việc lưu thiết lập là các câu hỏi riêng.
+- Nếu giao diện hỗ trợ câu hỏi có cấu trúc, lựa chọn nhanh hoặc chọn nhiều mục, hãy dùng chúng. Nếu không, đưa danh sách đánh số/ngắn gọn để người dùng chỉ cần trả lời số hoặc chữ; không giả vờ rằng giao diện đang hiện biểu mẫu.
+- Khi cần thông tin bổ sung, chỉ hỏi trường còn thiếu. Không yêu cầu lại hồ sơ, email hoặc key trong bước xuất báo cáo.
+- Giữ lại nhãn và tên trường kỹ thuật Odoo khi cần đối chiếu, nhưng giải thích lựa chọn bằng tiếng Việt.
 
-## Step 2: choose the filters/domain
+## Bước 1: chọn dịch vụ Odoo
 
-If a saved configuration exists, show a plain-language summary of its domain and ask the user to choose:
+1. Gọi `list_connections` trước mọi câu trả lời về hồ sơ. Không nói “chưa có hồ sơ” nếu kết quả có kết nối hoặc công cụ bị lỗi.
+2. Nếu không có hồ sơ, hướng dẫn người dùng gọi `/odoo2sheet-connect` rồi dừng trước khi truy vấn Odoo.
+3. Nếu chỉ có một hồ sơ, dùng hồ sơ đó. Nếu có nhiều hồ sơ, hiển thị tên/URL và hỏi người dùng chọn bằng số hoặc tên. Không yêu cầu gửi thông tin đăng nhập.
+4. Gọi `describe_model` với `sale.report`. Dùng nhãn, tên kỹ thuật, kiểu, quan hệ và giá trị lựa chọn trả về cho mọi gợi ý sau đó. Nếu Odoo không cho truy cập `sale.report`, nói rõ và dừng; không thay bằng `sale.order` hoặc mô hình khác.
+   - Nếu lỗi nêu rõ hồ sơ thiếu database, hỏi riêng tên database bằng một câu hỏi tiếng Việt. Sau khi người dùng cung cấp, gọi `update_connection` để lưu database mà không yêu cầu API key; sau đó gọi lại `describe_model`.
+   - Với lỗi khác, diễn giải lỗi bằng tiếng Việt, giữ nguyên các chi tiết kỹ thuật cần thiết.
+5. Gọi `get_report_preferences` cho hồ sơ đã chọn và `sale.report`.
 
-- **A. Reuse saved filters**
-- **B. Set new filters**
-- **C. Enter my own criteria/domain** (also available as a free-form response)
+## Bước 2: chọn bộ lọc
 
-If no saved configuration exists, proceed with new filters. Use the user's request plus the live `describe_model` fields to offer only options that exist on this `sale.report`. Typical suggestions, when those fields are present, are:
+Nếu có thiết lập đã lưu, tóm tắt bộ lọc bằng ngôn ngữ thường và hỏi một câu riêng với các lựa chọn:
 
-- a date range using a suitable date/datetime field;
-- order state, using the exact selection values returned by Odoo;
-- customer, salesperson, sales team, company, product, or product category using the available relation fields;
-- the user's own natural-language criteria or raw Odoo domain.
+- **1. Dùng lại bộ lọc đã lưu**
+- **2. Xuất không lọc**
+- **3. Chọn bộ lọc mới**
 
-The user can choose several suggestions. Convert all chosen criteria into one Odoo domain. Never infer a date basis or add a state/company rule without the user's request. For an inclusive date interval use `>=` the start and `<` the day after the end. If a criterion could map to several fields, ask the user which one.
+Nếu chưa có thiết lập đã lưu, hỏi người dùng muốn xuất không lọc hay chọn bộ lọc mới. Chỉ gợi ý bộ lọc ứng với trường thực sự có trong metadata `sale.report`, chẳng hạn:
 
-Summarize the chosen filters in normal language. For an existing saved domain, translate field names to labels from `describe_model` where possible. Do not make the user read raw domain JSON unless they chose to enter it themselves.
+- Khoảng ngày, dựa trên trường ngày phù hợp có trong metadata.
+- Trạng thái đơn, dùng đúng các giá trị lựa chọn Odoo trả về.
+- Khách hàng, nhân viên bán hàng, đội bán hàng, công ty, sản phẩm hoặc nhóm sản phẩm nếu có trường quan hệ tương ứng.
 
-## Step 3: choose CSV columns/fields
+Khi người dùng chọn bộ lọc mới, hãy hướng dẫn bằng các câu hỏi riêng. Nếu có nhiều trường ngày, hỏi họ chọn trường nào trước khi hỏi khoảng ngày. Không tự thêm trạng thái, công ty hay mốc ngày. Với khoảng ngày bao gồm cả ngày cuối, dùng toán tử `>=` cho ngày bắt đầu và `<` cho ngày sau ngày kết thúc. Nếu tiêu chí vẫn mơ hồ, hỏi đúng phần chưa rõ.
 
-After the filter choice, ask separately whether to reuse the saved columns or configure new ones:
+Không yêu cầu người dùng nhập domain thô hoặc tự soạn cú pháp. Chỉ nhận domain thô khi họ chủ động yêu cầu thao tác nâng cao bằng domain Odoo.
 
-- **A. Reuse saved columns**
-- **B. Choose new columns**
-- **C. Enter the column names/technical fields I want** (also available as a free-form response)
+## Bước 3: chọn các cột CSV
 
-If no saved columns exist, offer only B and C. For B, present a short menu of common report columns **only if they appear in live metadata**, for example date, order reference, customer, product, salesperson, sales team, quantity, untaxed amount, total, discount, or margin. Show the Odoo label and technical field for each choice. Do not guess field names across Odoo versions.
+Hỏi riêng về cột, sau khi đã xác nhận bộ lọc:
 
-Map the selected column labels to technical fields using `describe_model`; resolve ambiguity before export. Export only the chosen fields. If a saved field no longer exists, tell the user and ask them to configure columns again.
+- Nếu có cột đã lưu: **1. Dùng lại các cột đã lưu** hoặc **2. Chọn cột mới**.
+- Nếu chưa có cột đã lưu: trình bày danh sách cột khả dụng từ metadata để người dùng chọn một hay nhiều mục.
 
-## Step 4: export and save preferences
+Chỉ đưa vào danh sách các trường hiện diện trong metadata. Có thể gợi ý ngày, số đơn, khách hàng, sản phẩm, nhân viên bán hàng, đội bán hàng, số lượng, doanh thu trước thuế, tổng tiền, chiết khấu hoặc biên lợi nhuận khi các trường đó thực sự tồn tại. Hiển thị nhãn dễ hiểu; thêm tên kỹ thuật trong ngoặc nếu giúp phân biệt. Người dùng chọn bằng số hoặc nhiều số, không cần tự gõ tên trường.
 
-Call `export_csv` with model `sale.report`, the selected direct fields, the complete user-approved domain, and any requested order/row limit. Use the default maximum of 10,000 rows unless the user requests another limit (hard maximum 50,000).
+Ánh xạ lựa chọn sang tên trường kỹ thuật bằng `describe_model`, xử lý điểm mơ hồ trước khi xuất và chỉ xuất các trường đã chọn. Nếu cột đã lưu không còn tồn tại, báo bằng tiếng Việt và yêu cầu chọn cột mới qua danh sách metadata.
 
-After a successful export, report the file path, row count, model, filters, and column labels. CSV files go to the output folder configured for the selected profile; new profiles default to `~/odoo2sheet-output`, which is created automatically when needed. The default filename is `odoo2sheet-sale-report-YYYYMMDD-HHMMSS.csv`; if that name already exists, the exporter adds a numeric suffix rather than overwriting a file. Then ask whether to save these filters and columns as the profile's reusable `sale.report` configuration:
+## Bước 4: xuất và lưu thiết lập
 
-- **Save for next time**: call `save_report_preferences`, replacing the last saved preference for this profile/model.
-- **Use once**: do not change saved preferences.
+Gọi `export_csv` với model `sale.report`, các trường trực tiếp đã chọn, domain đã được người dùng duyệt và thứ tự/giới hạn dòng nếu họ yêu cầu. Mặc định tối đa 10.000 dòng; giới hạn cứng 50.000.
 
-Never paste sales rows into chat unless the user asks to inspect them. Odoo access remains read-only; only local CSV and local preference files are written.
+Sau khi xuất thành công, báo đường dẫn tệp, số dòng, model, bộ lọc và nhãn cột bằng tiếng Việt. CSV được lưu trong thư mục của hồ sơ đã chọn; hồ sơ mới mặc định dùng `~/odoo2sheet-output`, được tạo tự động khi cần. Tên mặc định `odoo2sheet-sale-report-YYYYMMDD-HHMMSS.csv`; nếu trùng tên, công cụ thêm số thứ tự, không ghi đè.
+
+Cuối cùng hỏi riêng người dùng có lưu bộ lọc và cột cho lần sau không:
+
+- **1. Lưu cho lần sau**: gọi `save_report_preferences`, thay thiết lập gần nhất cho hồ sơ/model này.
+- **2. Chỉ dùng lần này**: không thay đổi thiết lập đã lưu.
+
+Không dán các dòng dữ liệu bán hàng vào chat trừ khi người dùng yêu cầu xem. Truy cập Odoo chỉ đọc; plugin chỉ ghi CSV và tùy chọn cục bộ trên máy.

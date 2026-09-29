@@ -1,20 +1,22 @@
 ---
 name: odoo2sheet-uninstall
-description: Remove saved Odoo connection profiles and guide the user through removing Odoo To Sheet from GPT Desktop.
+description: Xóa hồ sơ kết nối Odoo đã lưu hoặc hướng dẫn gỡ Odoo To Sheet. Dùng khi người dùng gọi /odoo2sheet-uninstall.
 ---
 
-# Remove Odoo To Sheet data or plugin
+# Xóa dữ liệu Odoo To Sheet hoặc gỡ plugin
 
-The user invoked `/odoo2sheet-uninstall`. Explain that saved Odoo profiles and the plugin are separate: removing profiles deletes the saved email/API key and report preferences from this computer, while existing CSV exports stay in place.
+Luôn trả lời bằng tiếng Việt, trừ khi người dùng yêu cầu ngôn ngữ khác.
 
-1. Call `list_connections` and show the user the local configuration path, normally `~/.config/odoo2sheet/config.json`.
-2. Ask one clear choice:
-   - **Keep saved connections** in case they use Odoo To Sheet again.
-   - **Delete saved connections and report preferences** from this computer.
-3. If the user explicitly chooses deletion, call `remove_connection` for each listed profile with `confirm=true`. Do not delete exported CSV files.
-4. Guide the user to remove the plugin in GPT Desktop:
-   - If they manage the workspace: open **Workspace settings → Plugins**, find **Odoo To Sheet**, then disable or remove it.
-   - If they do not manage the workspace: ask the workspace manager to disable or remove it.
-5. Clearly report which profiles were kept or removed, remind the user that exported CSV files remain in their output folder, and say whether a workspace manager still needs to remove the plugin.
+Hồ sơ Odoo lưu trên máy và plugin là hai phần riêng. Xóa hồ sơ sẽ xóa email/API key đã lưu cùng tùy chọn báo cáo; các CSV đã xuất vẫn được giữ nguyên.
 
-Do not tell users to open a terminal or run command-line plugin tools. Do not claim the plugin was removed from the workspace; only a workspace administrator can do that in the desktop app.
+1. Gọi `list_connections` và cho biết đường dẫn cấu hình cục bộ, thường là `~/.config/odoo2sheet/config.json`.
+2. Hỏi một lựa chọn rõ ràng:
+   - **1. Giữ các hồ sơ kết nối** để dùng lại Odoo To Sheet.
+   - **2. Xóa các hồ sơ kết nối và tùy chọn báo cáo khỏi máy này**.
+3. Chỉ khi người dùng chọn xóa, gọi `remove_connection` cho từng hồ sơ trong danh sách với `confirm=true`. Không xóa CSV đã xuất.
+4. Hướng dẫn gỡ plugin trong GPT Desktop:
+   - Nếu người dùng quản lý workspace: mở **Workspace settings → Plugins**, tìm **Odoo To Sheet**, rồi tắt hoặc xóa plugin.
+   - Nếu không quản lý workspace: nhờ quản trị viên workspace tắt hoặc xóa plugin.
+5. Báo rõ hồ sơ nào được giữ/xóa; nhắc rằng CSV vẫn nằm trong thư mục đầu ra; cho biết quản trị viên có cần gỡ plugin khỏi workspace hay không.
+
+Không yêu cầu người dùng mở Terminal hoặc chạy lệnh dòng lệnh. Không nói plugin đã được gỡ khỏi workspace; chỉ quản trị viên mới có thể gỡ trong ứng dụng.

@@ -1,15 +1,15 @@
 {
   "name": "odoo-to-sheet",
   "version": "0.1.0+codex.20260929065439",
-  "description": "Connect to Odoo, configure reusable sales report filters and columns, and export CSV.",
+  "description": "Kết nối Odoo, chọn bộ lọc và cột báo cáo bán hàng, rồi xuất CSV.",
   "author": {
     "name": "Local developer"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Odoo To Sheet",
-    "shortDescription": "Configure and export Odoo sales reports.",
-    "longDescription": "Connect to Odoo, save local connection profiles, reuse or change sale.report domains and columns, and export CSV. Odoo business records are read-only.",
+    "shortDescription": "Kết nối và xuất báo cáo bán hàng Odoo.",
+    "longDescription": "Kết nối Odoo, lưu hồ sơ cục bộ, chọn bộ lọc và cột cho sale.report, rồi xuất CSV. Dữ liệu nghiệp vụ Odoo chỉ được đọc.",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [
@@ -20,7 +20,7 @@
     "composerIcon": "./assets/icon.png",
     "logo": "./assets/icon.png",
     "defaultPrompt": [
-      "Use /odoo2sheet-connect to connect, then /odoo2sheet-salereport to export sale.report data"
+      "Hướng dẫn bằng tiếng Việt. Khi cần kết nối mới, mở biểu mẫu nhập liệu của /odoo2sheet-connect; chỉ hỏi từng trường trong hội thoại nếu giao diện không hiển thị biểu mẫu. Sau đó tiếp tục /odoo2sheet-salereport để xuất sale.report. Không yêu cầu người dùng tự soạn một đoạn chứa mọi thông tin."
     ]
   },
   "mcpServers": "./.mcp.json"

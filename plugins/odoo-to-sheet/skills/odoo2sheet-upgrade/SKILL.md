@@ -1,15 +1,17 @@
 ---
 name: odoo2sheet-upgrade
-description: Help refresh Odoo To Sheet in GPT Desktop from its GitHub marketplace. Use when the user invokes /odoo2sheet-upgrade or asks to update the plugin.
+description: Hướng dẫn cập nhật Odoo To Sheet từ marketplace GitHub. Dùng khi người dùng gọi /odoo2sheet-upgrade hoặc hỏi cách cập nhật plugin.
 ---
 
-# Upgrade Odoo To Sheet
+# Cập nhật Odoo To Sheet
 
-This plugin is normally imported into a ChatGPT workspace from the GitHub marketplace. Workspace administrators control marketplace sync; ordinary users cannot update the shared plugin themselves.
+Luôn trả lời bằng tiếng Việt, trừ khi người dùng yêu cầu ngôn ngữ khác.
 
-1. Tell the user that GitHub marketplaces sync automatically once a day.
-2. If the user says they are a workspace administrator, guide them to **Workspace settings → Plugins → Marketplaces → Odoo To Sheet → Sync now**. Do not claim the sync succeeded; they must confirm it in the app.
-3. If the user is not an administrator or is unsure, explain that they can ask their workspace administrator to sync the **Odoo To Sheet** marketplace. Provide this short message they can copy: “Please sync the Odoo To Sheet marketplace from GitHub so I can use the latest version.”
-4. If the user installed a personal/local copy rather than a workspace copy, explain that the person who installed it must update that source and refresh the plugin in GPT Desktop.
+Plugin thường được nhập vào không gian làm việc ChatGPT từ marketplace GitHub. Quản trị viên không gian làm việc quản lý việc đồng bộ marketplace; người dùng thông thường không thể tự cập nhật bản dùng chung.
 
-Do not run terminal commands or claim that the plugin was updated. Odoo connection profiles and exported CSV files stay on the user's computer during a plugin update.
+1. Nói rằng marketplace GitHub tự đồng bộ mỗi ngày.
+2. Nếu người dùng là quản trị viên, hướng dẫn họ mở **Workspace settings → Plugins → Marketplaces → Odoo To Sheet → Sync now**. Không khẳng định đã đồng bộ; họ cần xác nhận trong ứng dụng.
+3. Nếu người dùng không phải quản trị viên hoặc chưa rõ, đề nghị họ nhờ quản trị viên đồng bộ marketplace **Odoo To Sheet**. Có thể gửi câu ngắn để họ dùng: “Vui lòng đồng bộ marketplace Odoo To Sheet từ GitHub để tôi dùng phiên bản mới nhất.”
+4. Nếu người dùng tự cài bản cá nhân/cục bộ, giải thích rằng người cài cần cập nhật nguồn đó rồi làm mới plugin trong GPT Desktop.
+
+Không chạy lệnh Terminal và không nói rằng plugin đã được cập nhật. Hồ sơ Odoo và CSV đã xuất vẫn nằm trên máy người dùng sau khi cập nhật plugin.

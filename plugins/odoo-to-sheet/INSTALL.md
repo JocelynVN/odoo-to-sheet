@@ -40,7 +40,7 @@ Trong cuộc trò chuyện đã chọn plugin, gõ `/odoo2sheet-connect` hoặc 
 - Tên dễ nhớ cho hồ sơ, ví dụ `cong-ty`.
 - Nếu muốn, đường dẫn thư mục để lưu CSV. Mặc định là thư mục `odoo2sheet-output` trong thư mục cá nhân trên máy.
 
-GPT Desktop sẽ hỏi lần lượt và kiểm tra kết nối. API key được lưu trên máy để dùng lần sau; file cấu hình là văn bản chưa mã hóa. Chỉ kết nối trong cuộc trò chuyện riêng và không gửi file cấu hình cho người khác.
+Trên giao diện hỗ trợ MCP Apps, GPT Desktop sẽ mở biểu mẫu tiếng Việt có từng ô nhập riêng, dùng ô mật khẩu cho API key và kiểm tra kết nối sau khi lưu. Nếu giao diện không hỗ trợ biểu mẫu, plugin hỏi từng trường riêng trong hội thoại. Bạn không cần tự soạn một tin nhắn chứa tất cả thông tin. Biểu mẫu thông báo rằng API key được lưu trên máy để dùng lần sau; tệp cấu hình chưa được mã hóa. Chỉ kết nối trong cuộc trò chuyện riêng và không gửi tệp cấu hình cho người khác.
 
 ## Xuất báo cáo CSV
 
@@ -48,13 +48,13 @@ Gõ `/odoo2sheet-salereport` hoặc viết yêu cầu bằng lời, ví dụ:
 
 > Lấy báo cáo bán hàng từ đầu tháng đến hôm nay, gồm ngày, số đơn, khách hàng, sản phẩm, số lượng và doanh thu.
 
-Plugin sẽ hỏi:
+Plugin sẽ hỏi riêng từng bước bằng tiếng Việt:
 
 1. Dùng lại bộ lọc đã lưu hay chọn bộ lọc mới.
 2. Dùng lại các cột đã lưu hay chọn cột mới.
 3. Có lưu lựa chọn mới để dùng lần sau không.
 
-Chọn một phương án trong danh sách hoặc mô tả điều bạn muốn lọc/lấy. Plugin chỉ gợi ý cột có thật trên dịch vụ Odoo đang kết nối.
+Chọn phương án hoặc số thứ tự cột trong danh sách. Plugin chỉ gợi ý cột có thật trên dịch vụ Odoo đang kết nối; bạn không cần tự nhập tên trường kỹ thuật hay cú pháp domain.
 
 Sau khi xuất xong, GPT Desktop sẽ báo số dòng và đường dẫn file. Mặc định file nằm trong `odoo2sheet-output` ở thư mục cá nhân của bạn. Tên file có tên báo cáo và thời điểm xuất; file cũ không bị ghi đè.
 

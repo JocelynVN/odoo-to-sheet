@@ -5,10 +5,10 @@ Dùng GPT Desktop để lấy báo cáo bán hàng từ Odoo và lưu thành fil
 ## Dùng nhanh
 
 1. Mở GPT Desktop, tạo cuộc trò chuyện mới, rồi chọn **Odoo To Sheet** trong menu `+` → **More**. Nếu có ô chọn plugin, cũng có thể gọi `@Odoo To Sheet`.
-2. Lần đầu tiên, nhập `/odoo2sheet-connect` hoặc nhắn **Kết nối Odoo**. Chuẩn bị địa chỉ Odoo, email đăng nhập, API key và tên cơ sở dữ liệu nếu Odoo hỏi.
+2. Lần đầu tiên, nhập `/odoo2sheet-connect` hoặc nhắn **Kết nối Odoo**. Trên giao diện hỗ trợ MCP Apps, plugin mở biểu mẫu tiếng Việt với từng ô riêng và ô mật khẩu cho API key. Nếu giao diện không hiển thị biểu mẫu, plugin hỏi từng trường riêng trong hội thoại. Bạn không cần soạn một đoạn chứa toàn bộ thông tin kết nối.
 3. Để lấy báo cáo, nhập `/odoo2sheet-salereport` kèm yêu cầu, ví dụ: **Lấy báo cáo bán hàng tháng này gồm ngày, đơn hàng, khách hàng, sản phẩm và doanh thu**.
 
-Plugin sẽ hỏi có dùng lại bộ lọc và cột đã lưu hay chọn cấu hình mới. Bạn có thể chọn các gợi ý hoặc tự mô tả điều kiện/cột muốn lấy. Sau khi tải xong, GPT Desktop sẽ báo vị trí file CSV.
+Plugin sẽ đưa ra lựa chọn riêng cho bộ lọc và cột; các cột gợi ý được lấy từ metadata thật của Odoo. Bạn chỉ cần chọn phương án hoặc số cột muốn lấy. Nếu hồ sơ hiện có thiếu tên cơ sở dữ liệu, plugin hỏi riêng giá trị đó và cập nhật hồ sơ mà không yêu cầu nhập lại API key. Sau khi tải xong, GPT Desktop sẽ báo vị trí file CSV.
 
 ## File được lưu ở đâu?
 
