@@ -1,3 +1,5 @@
-.odoo2shet-env/
+# Current per-user runtime name. This also prevents accidental commits when a
+# developer overrides ODOO2SHEET_ENV_DIR to place it inside the repository.
+.odoo2sheet-env/
 __pycache__/
 *.py[cod]
