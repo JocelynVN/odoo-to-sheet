@@ -26,15 +26,24 @@ from odoo_connection import (
 )
 
 
-SERVER_VERSION = "0.2.0"
+SERVER_VERSION = "0.3.0"
 PAGE_SIZE = 500
 DEFAULT_MAX_RECORDS = 10_000
 MAX_RECORDS = 50_000
 CLEANUP_PREVIEW_LIMIT = 200
 CLEANUP_ENV_NAME = ".odoo2shet-env"
+HELP_LAUNCHER_URI = "ui://odoo2sheet/help-launcher/v1.html"
+HELP_MENU_URI = "ui://odoo2sheet/help-menu/v1.html"
 
 
 TOOLS = [
+    {
+        "name": "open_help_menu",
+        "description": "Mở hộp lựa chọn hướng dẫn tương tác cho Odoo To Sheet. Chỉ dùng khi người dùng chưa nêu tác vụ cụ thể hoặc gọi /odoo2sheet-help; lựa chọn sẽ được gửi lại hội thoại để tiếp tục đúng hướng dẫn.",
+        "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False},
+        "_meta": {"ui": {"resourceUri": HELP_LAUNCHER_URI}},
+        "annotations": {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+    },
     {
         "name": "discover_databases",
         "description": "Tìm tên database trên máy chủ Odoo sau khi người dùng cung cấp auth. Dùng hồ sơ đã lưu hoặc URL/API key của kết nối mới. Chỉ đọc danh sách; không sửa dữ liệu Odoo.",
@@ -955,6 +964,11 @@ def _call_tool(name: str, args: Any) -> dict[str, Any]:
     _require_plugin_runtime()
     if not isinstance(args, dict):
         raise OdooError("Tham số công cụ phải là một đối tượng JSON.")
+    if name == "open_help_menu":
+        return {
+            "menu_opened": True,
+            "message": "Đã mở hộp lựa chọn hướng dẫn. Chờ người dùng chọn một mục; không in lại menu dạng văn bản.",
+        }
     if name == "preview_local_cleanup":
         return _handle_preview_local_cleanup()
     if name == "clean_local_data":
@@ -1010,9 +1024,12 @@ def _handle_message(message: Any) -> None:
         requested_version = params.get("protocolVersion", "2024-11-05")
         _respond(request_id, {
             "protocolVersion": requested_version,
-            "capabilities": {"tools": {"listChanged": False}},
+            "capabilities": {
+                "tools": {"listChanged": False},
+                "resources": {"listChanged": False, "subscribe": False},
+            },
             "serverInfo": {"name": "odoo2sheet", "version": SERVER_VERSION},
-            "instructions": "Trả lời bằng tiếng Việt trừ khi người dùng yêu cầu ngôn ngữ khác. Plugin tự chạy scripts/run_odoo_mcp_server.py trước khi mở MCP: kiểm tra và dùng lại .odoo2shet-env, không tạo lại nếu đã có; pip kiểm tra requirements.txt và chỉ cài gói còn thiếu vào đúng môi trường đó. Mỗi lời gọi tool được chặn nếu MCP server không chạy trong môi trường này. Không yêu cầu người dùng tạo env, cài thư viện bằng Terminal hoặc lặp lại thiết lập. Khi người dùng bắt đầu kết nối bằng /odoo2sheet-start, dùng HITL trong chat để thu thập URL, email và API key còn thiếu; kiểm tra trạng thái bằng list_connections, tự tìm database bằng discover_databases, tự lưu nếu chỉ có một và chỉ hỏi chọn nếu có nhiều; sau đó gọi check_connection. Nếu sai thông tin đăng nhập, hỏi người dùng nhập lại email/API key rồi cập nhật hồ sơ và kiểm tra lại. Khi kết nối thành công, báo hoàn tất và đưa lựa chọn các skill tiếp theo. Không yêu cầu xác nhận lại việc lưu cấu hình mà người dùng vừa yêu cầu; vẫn phải xin xác nhận trước khi thay thế/xóa hồ sơ, xóa tùy chọn đã lưu, xuất CSV hoặc lưu tùy chọn báo cáo. Trước khi nói chưa có hồ sơ, gọi list_connections. Không hiển thị hay nhắc lại API key. API key được lưu cục bộ; dữ liệu nghiệp vụ Odoo chỉ được đọc.",
+            "instructions": "Trả lời bằng tiếng Việt trừ khi người dùng yêu cầu ngôn ngữ khác. Trước khi MCP server mở tool, scripts/run_odoo_mcp_server.py tạo và dùng lại .odoo2shet-env; nếu môi trường tồn tại thì không tạo lại, pip chỉ cài bổ sung các gói được khai báo trong requirements.txt. Runtime hiện dùng thư viện chuẩn Python nên chưa cần cài gói bên thứ ba. Mỗi lời gọi tool bị chặn nếu MCP server không chạy trong môi trường này. Không yêu cầu người dùng tự tạo env hoặc cài thư viện bằng Terminal. Khi người dùng gọi /odoo2sheet-help mà chưa nêu việc cần làm, gọi open_help_menu để mở hộp lựa chọn HITL; không thay bằng menu số trong tin nhắn. Lựa chọn trong hộp sẽ gửi thành tin nhắn người dùng, sau đó tiếp tục hướng dẫn/tác vụ tương ứng mà không mở menu lần nữa. Nếu host không hỗ trợ UI, hỏi lựa chọn trực tiếp trong chat. Khi người dùng bắt đầu kết nối bằng /odoo2sheet-start, dùng HITL trong chat để thu thập URL, email và API key còn thiếu; kiểm tra trạng thái bằng list_connections, tự tìm database bằng discover_databases, tự lưu nếu chỉ có một và chỉ hỏi chọn nếu có nhiều; sau đó gọi check_connection. Nếu sai thông tin đăng nhập, hỏi người dùng nhập lại email/API key rồi cập nhật hồ sơ và kiểm tra lại. Khi kết nối thành công, báo hoàn tất và đưa lựa chọn các skill tiếp theo. Không yêu cầu xác nhận lại việc lưu cấu hình mà người dùng vừa yêu cầu; vẫn phải xin xác nhận trước khi thay thế/xóa hồ sơ, xóa tùy chọn đã lưu, xuất CSV hoặc lưu tùy chọn báo cáo. Trước khi nói chưa có hồ sơ, gọi list_connections. Không hiển thị hay nhắc lại API key. API key được lưu cục bộ; dữ liệu nghiệp vụ Odoo chỉ được đọc.",
         })
         return
     if method == "ping":
@@ -1020,6 +1037,49 @@ def _handle_message(message: Any) -> None:
         return
     if method == "tools/list":
         _respond(request_id, {"tools": TOOLS})
+        return
+    if method == "resources/list":
+        _respond(request_id, {
+            "resources": [
+                {
+                    "uri": HELP_LAUNCHER_URI,
+                    "name": "Mở hộp hướng dẫn Odoo To Sheet",
+                    "mimeType": "text/html;profile=mcp-app",
+                },
+                {
+                    "uri": HELP_MENU_URI,
+                    "name": "Lựa chọn hướng dẫn Odoo To Sheet",
+                    "mimeType": "text/html;profile=mcp-app",
+                },
+            ],
+        })
+        return
+    if method == "resources/read":
+        uri = params.get("uri")
+        if not isinstance(uri, str):
+            _respond(request_id, error={"code": -32602, "message": "URI tài nguyên giao diện không hợp lệ."})
+            return
+        resource_paths = {
+            HELP_LAUNCHER_URI: Path(__file__).resolve().parent.parent / "ui" / "help-launcher.html",
+            HELP_MENU_URI: Path(__file__).resolve().parent.parent / "ui" / "help-menu.html",
+        }
+        resource_path = resource_paths.get(uri)
+        if resource_path is None:
+            _respond(request_id, error={"code": -32602, "message": "Không tìm thấy tài nguyên giao diện được yêu cầu."})
+            return
+        try:
+            html = resource_path.read_text(encoding="utf-8")
+        except OSError as exc:
+            _respond(request_id, error={"code": -32603, "message": f"Không thể đọc tài nguyên giao diện: {exc}"})
+            return
+        _respond(request_id, {
+            "contents": [{
+                "uri": uri,
+                "mimeType": "text/html;profile=mcp-app",
+                "text": html,
+                "_meta": {"ui": {"prefersBorder": True}},
+            }],
+        })
         return
     if method == "tools/call":
         name = params.get("name")

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Trợ giúp Odoo To Sheet</title>
+    <style>
+      :root { color-scheme: light dark; font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      * { box-sizing: border-box; }
+      body { margin: 0; padding: 16px; }
+      main { max-width: 520px; margin: 0 auto; }
+      h1 { margin: 0 0 4px; font-size: 17px; }
+      p { margin: 0; opacity: .76; }
+      #status { margin-top: 10px; font-size: 13px; }
+      #fallback { display: none; margin-top: 12px; }
+      #choices { display: grid; gap: 7px; margin-top: 9px; }
+      button { width: 100%; padding: 9px 11px; border: 1px solid color-mix(in srgb, currentColor 22%, transparent); border-radius: 9px; background: transparent; color: inherit; text-align: left; font: inherit; cursor: pointer; }
+      button:hover, button:focus-visible { background: color-mix(in srgb, currentColor 8%, transparent); outline: 2px solid #8064a2; outline-offset: 1px; }
+      button:disabled { opacity: .6; cursor: progress; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Trợ giúp Odoo To Sheet</h1>
+      <p>Đang mở cửa sổ chọn nội dung bạn cần.</p>
+      <div id="status" role="status" aria-live="polite"></div>
+      <section id="fallback" aria-label="Lựa chọn hướng dẫn">
+        <p>Không mở được cửa sổ tương tác. Bạn có thể chọn ngay tại đây:</p>
+        <div id="choices"></div>
+      </section>
+    </main>
+    <script>
+      const MENU_URI = "ui://odoo2sheet/help-menu/v1.html";
+      const CHOICES = [
+        { title: "Kết nối Odoo hoặc sửa lỗi đăng nhập", prompt: "Tôi chọn hướng dẫn kết nối Odoo lần đầu hoặc sửa lỗi đăng nhập. Hãy tiếp tục theo skill /odoo2sheet-start." },
+        { title: "Xuất báo cáo bán hàng thành CSV", prompt: "Tôi muốn xuất báo cáo bán hàng thành CSV. Hãy tiếp tục theo skill /odoo2sheet-salereport." },
+        { title: "Đổi hồ sơ Odoo, database hoặc thư mục lưu CSV", prompt: "Tôi chọn hướng dẫn chọn hồ sơ Odoo, đổi database hoặc thư mục lưu CSV. Hãy tiếp tục theo hướng dẫn mục 3 của skill /odoo2sheet-help; đừng mở lại hộp lựa chọn." },
+        { title: "Cập nhật plugin Odoo To Sheet", prompt: "Tôi muốn cập nhật plugin Odoo To Sheet. Hãy tiếp tục theo skill /odoo2sheet-upgrade." },
+        { title: "Sao lưu, xóa dữ liệu cục bộ hoặc gỡ plugin", prompt: "Tôi muốn sao lưu, xóa dữ liệu cục bộ hoặc gỡ plugin. Hãy tiếp tục theo skill /odoo2sheet-uninstall." },
+        { title: "Hướng dẫn khác", prompt: "Tôi cần hướng dẫn khác về Odoo To Sheet. Hãy hỏi ngắn gọn tôi đang cần làm gì." },
+      ];
+      const status = document.getElementById("status");
+      const fallback = document.getElementById("fallback");
+      const choiceList = document.getElementById("choices");
+      const pending = new Map();
+      let nextRequestId = 1;
+
+      function request(method, params) {
+        const id = nextRequestId++;
+        return new Promise((resolve, reject) => {
+          pending.set(id, { resolve, reject });
+          window.parent.postMessage({ jsonrpc: "2.0", id, method, params }, "*");
+        });
+      }
+
+      window.addEventListener("message", (event) => {
+        if (event.source !== window.parent) return;
+        const message = event.data;
+        if (!message || message.jsonrpc !== "2.0" || message.id === undefined) return;
+        const item = pending.get(message.id);
+        if (!item) return;
+        pending.delete(message.id);
+        if (message.error) item.reject(message.error);
+        else item.resolve(message.result);
+      }, { passive: true });
+
+      const bridgeReady = request("ui/initialize", {
+        appInfo: { name: "odoo2sheet-help-launcher", version: "1.0.0" },
+        appCapabilities: {},
+        protocolVersion: "2026-01-26",
+      }).then(() => {
+        window.parent.postMessage({ jsonrpc: "2.0", method: "ui/notifications/initialized", params: {} }, "*");
+      });
+
+      async function sendChoice(prompt) {
+        await bridgeReady;
+        const result = await request("ui/message", { role: "user", content: [{ type: "text", text: prompt }] });
+        if (result?.isError) throw new Error("The host rejected the selected option.");
+        try { await window.openai?.requestClose?.(); } catch {}
+      }
+
+      function showFallback() {
+        status.textContent = "";
+        fallback.style.display = "block";
+        if (choiceList.childElementCount > 0) return;
+        for (const choice of CHOICES) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = choice.title;
+          button.addEventListener("click", async () => {
+            button.disabled = true;
+            try { await sendChoice(choice.prompt); }
+            catch { button.disabled = false; status.textContent = "Chưa gửi được lựa chọn. Hãy thử lại hoặc trả lời trực tiếp trong chat."; }
+          });
+          choiceList.append(button);
+        }
+      }
+
+      async function openMenu() {
+        if (!window.openai?.requestModal) {
+          showFallback();
+          return;
+        }
+        try {
+          await bridgeReady;
+          await window.openai.requestModal({ template: MENU_URI });
+          status.textContent = "Nếu cửa sổ không xuất hiện, bạn có thể mở lựa chọn nhanh bên dưới.";
+          const reveal = document.createElement("button");
+          reveal.type = "button";
+          reveal.textContent = "Mở lựa chọn ngay tại đây";
+          reveal.addEventListener("click", showFallback, { once: true });
+          status.append(" ", reveal);
+        } catch {
+          showFallback();
+        }
+      }
+
+      openMenu();
+    </script>
+  </body>
+</html>

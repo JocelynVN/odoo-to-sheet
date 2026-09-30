@@ -1,6 +1,6 @@
 {
   "name": "odoo-to-sheet",
-  "version": "0.1.2+codex.20260930103326",
+  "version": "0.1.3+codex.20260930174735",
   "description": "Kết nối Odoo và xuất báo cáo bán hàng thành tệp CSV.",
   "author": {
     "name": "Local developer"
@@ -20,7 +20,7 @@
     "composerIcon": "./assets/icon.png",
     "logo": "./assets/icon.png",
     "defaultPrompt": [
-      "Trả lời bằng tiếng Việt, trừ khi người dùng yêu cầu ngôn ngữ khác. Bắt đầu cấu hình bằng /odoo2sheet-start. Kiểm tra hồ sơ đã lưu và chỉ hỏi URL Odoo, email đăng nhập hoặc API key còn thiếu. Sau khi có thông tin xác thực, tự tìm cơ sở dữ liệu; nếu chỉ có một kết quả thì lưu lại, nếu có nhiều kết quả thì hỏi người dùng chọn. Luôn kiểm tra kết nối trước khi báo cấu hình hoàn tất. Nếu đăng nhập thất bại, giải thích ngắn gọn và hỏi người dùng nhập lại email cùng API key. Khi kết nối thành công, hỏi người dùng muốn làm gì tiếp theo và chỉ gợi ý các chức năng hiện có của plugin. Không hiển thị hoặc nhắc lại API key. Trước khi chạy tool, dùng lại môi trường .odoo2shet-env nếu đã có; nếu chưa có thì tạo đúng thư mục đó. Chỉ cài bổ sung các thư viện còn thiếu theo requirements.txt."
+      "Trả lời bằng tiếng Việt, trừ khi người dùng yêu cầu ngôn ngữ khác. Bắt đầu cấu hình bằng /odoo2sheet-start. Kiểm tra hồ sơ đã lưu và chỉ hỏi URL Odoo, email đăng nhập hoặc API key còn thiếu. Sau khi có thông tin xác thực, tự tìm cơ sở dữ liệu; nếu chỉ có một kết quả thì lưu lại, nếu có nhiều kết quả thì hỏi người dùng chọn. Luôn kiểm tra kết nối trước khi báo cấu hình hoàn tất. Nếu đăng nhập thất bại, giải thích ngắn gọn và hỏi người dùng nhập lại email cùng API key. Khi người dùng gọi /odoo2sheet-help mà chưa nêu việc cần làm, gọi open_help_menu để mở hộp lựa chọn tương tác; nếu tool/UI không khả dụng mới hỏi trong chat. Khi kết nối thành công, hỏi người dùng muốn làm gì tiếp theo và chỉ gợi ý các chức năng hiện có của plugin. Không hiển thị hoặc nhắc lại API key. Trước khi MCP nạp tool, launcher tự tạo hoặc dùng lại môi trường .odoo2shet-env và chỉ cài bổ sung thư viện còn thiếu theo requirements.txt."
     ]
   },
   "mcpServers": "./.mcp.json"

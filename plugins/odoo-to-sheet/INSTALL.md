@@ -13,6 +13,10 @@ Người quản lý không gian làm việc cần cài plugin một lần trư�
 
 Nếu bạn không có quyền quản trị workspace, nhờ quản trị viên cài và bật plugin cho tài khoản của bạn. Chỉ tải repo trên GitHub về máy thì plugin chưa tự xuất hiện trong ChatGPT Desktop.
 
+### Môi trường Python của tool
+
+Khi plugin khởi động MCP server, launcher kiểm tra `.odoo2shet-env` trước khi nạp tool. Môi trường có sẵn sẽ được dùng lại; nếu chưa có, plugin tự tạo rồi kiểm tra `requirements.txt` và chỉ cài thư viện còn thiếu. Phiên bản hiện tại dùng thư viện chuẩn Python nên không cần gói bên thứ ba. Người dùng không cần tạo môi trường hoặc cài thư viện bằng Terminal.
+
 ## Cài plugin trong không gian làm việc
 
 > **Ai làm bước này?** Người có quyền quản trị không gian làm việc trong ChatGPT. Các nhãn giao diện có thể hơi khác tùy phiên bản.
@@ -38,7 +42,7 @@ Trong cuộc trò chuyện đã chọn plugin, gõ `/odoo2sheet-start` hoặc nh
 - API key do Odoo cấp.
 - Nếu muốn đổi, đường dẫn thư mục để lưu CSV. Mặc định là thư mục `odoo2sheet-output` trong thư mục cá nhân trên máy.
 
-ChatGPT Desktop kiểm tra hồ sơ đã lưu và hỏi từng thông tin còn thiếu trong chat. Sau khi nhận auth, plugin tự tìm database; nếu chỉ có một, plugin tự lưu, còn nếu có nhiều thì hỏi bạn chọn bằng số. Nếu máy chủ không cho liệt kê, plugin sẽ hỏi tên database. Khi đăng nhập sai, plugin hỏi nhập lại email và API key. API key được nhập trong cuộc trò chuyện riêng, có thể còn trong lịch sử chat và được lưu trong file cấu hình cục bộ chưa mã hóa; plugin sẽ thông báo điều này trước khi hỏi key. Sau khi kết nối thành công, plugin hỏi bạn muốn dùng skill nào tiếp theo. Gõ `/odoo2sheet-help` để xem các lựa chọn và hướng dẫn phổ biến.
+ChatGPT Desktop kiểm tra hồ sơ đã lưu và hỏi từng thông tin còn thiếu trong chat. Sau khi nhận auth, plugin tự tìm database; nếu chỉ có một, plugin tự lưu, còn nếu có nhiều thì hỏi bạn chọn bằng số. Nếu máy chủ không cho liệt kê, plugin sẽ hỏi tên database. Khi đăng nhập sai, plugin hỏi nhập lại email và API key. API key được nhập trong cuộc trò chuyện riêng, có thể còn trong lịch sử chat và được lưu trong file cấu hình cục bộ chưa mã hóa; plugin sẽ thông báo điều này trước khi hỏi key. Sau khi kết nối thành công, plugin hỏi bạn muốn dùng skill nào tiếp theo. Gõ `/odoo2sheet-help` để mở hộp lựa chọn các hướng dẫn phổ biến.
 
 ## Xuất báo cáo CSV
 

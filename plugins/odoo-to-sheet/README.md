@@ -8,7 +8,7 @@ Dùng ChatGPT Desktop để lấy báo cáo bán hàng từ Odoo và lưu thành
 2. Lần đầu tiên, nhập `/odoo2sheet-start` hoặc nhắn **Bắt đầu với Odoo To Sheet**. Plugin kiểm tra cấu hình, chỉ hỏi URL/email/API key còn thiếu, tự tìm database và tự lưu nếu chỉ có một. Nếu có nhiều database, bạn chọn bằng HITL trong chat. Nếu auth sai, plugin hỏi nhập lại email/API key.
 3. Để lấy báo cáo, nhập `/odoo2sheet-salereport` kèm yêu cầu, ví dụ: **Lấy báo cáo bán hàng tháng này gồm ngày, đơn hàng, khách hàng, sản phẩm và doanh thu**.
 
-Sau khi kết nối thành công, plugin báo cấu hình hoàn tất và hỏi bạn muốn dùng skill nào tiếp theo. Bạn có thể chọn xuất báo cáo bán hàng, hỏi cách sử dụng, quản lý hồ sơ, cập nhật plugin hoặc gỡ/xóa hồ sơ. Gọi `/odoo2sheet-help` nếu bạn muốn xem các lựa chọn phổ biến. Khi xuất báo cáo, bạn có thể nêu khoảng thời gian, điều kiện lọc và cột cần lấy ngay trong một yêu cầu; plugin hỏi phần còn thiếu, đưa cấu hình báo cáo đã lưu ra để bạn xác nhận, rồi chờ xác nhận trước khi tạo CSV.
+Sau khi kết nối thành công, plugin báo cấu hình hoàn tất và hỏi bạn muốn dùng skill nào tiếp theo. Bạn có thể chọn xuất báo cáo bán hàng, hỏi cách sử dụng, quản lý hồ sơ, cập nhật plugin hoặc gỡ/xóa hồ sơ. Gọi `/odoo2sheet-help` nếu bạn muốn mở hộp lựa chọn các hướng dẫn phổ biến. Khi xuất báo cáo, bạn có thể nêu khoảng thời gian, điều kiện lọc và cột cần lấy ngay trong một yêu cầu; plugin hỏi phần còn thiếu, đưa cấu hình báo cáo đã lưu ra để bạn xác nhận, rồi chờ xác nhận trước khi tạo CSV.
 
 ## File được lưu ở đâu?
 
@@ -28,6 +28,10 @@ API key được nhập trong chat riêng, có thể còn trong lịch sử cu�
 Nếu bạn không thấy **Odoo To Sheet** trong ChatGPT Desktop, nhờ người quản lý không gian làm việc cài plugin từ [repo Odoo To Sheet trên GitHub](https://github.com/JocelynVN/odoo-to-sheet). Xem [hướng dẫn cài lần đầu](INSTALL.md). Repo GitHub là nguồn cài đặt; plugin chưa nằm trong danh mục công khai để mọi tài khoản tự cài.
 
 Plugin này dành cho ứng dụng ChatGPT Desktop vì phần kết nối Odoo chạy trên máy người dùng; plugin không dùng được trên ChatGPT web hoặc điện thoại.
+
+## Môi trường chạy tool
+
+Trước khi các tool Odoo To Sheet được nạp, launcher tự kiểm tra và dùng lại môi trường Python `.odoo2shet-env`; nếu chưa có thì tự tạo, sau đó chỉ cài các gói còn thiếu được khai báo trong `requirements.txt`. Hiện kết nối Odoo dùng thư viện chuẩn Python nên tệp này chưa cần gói bên thứ ba. Người dùng không phải mở Terminal hay tự cài môi trường.
 
 ## Cập nhật và gỡ
 
