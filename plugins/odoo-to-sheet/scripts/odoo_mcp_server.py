@@ -24,17 +24,24 @@ from odoo_connection import (
     read_config,
     write_config,
 )
+from odoo_runtime import ENV_DIR_NAME, platform_details, user_data_dir
 
 
-SERVER_VERSION = "0.2.0"
+SERVER_VERSION = "0.4.0"
 PAGE_SIZE = 500
 DEFAULT_MAX_RECORDS = 10_000
 MAX_RECORDS = 50_000
 CLEANUP_PREVIEW_LIMIT = 200
-CLEANUP_ENV_NAME = ".odoo2shet-env"
+CLEANUP_ENV_NAME = ENV_DIR_NAME
 
 
 TOOLS = [
+    {
+        "name": "get_runtime_status",
+        "description": "Kiểm tra môi trường Python cục bộ đã được MCP launcher chuẩn bị cho hệ điều hành hiện tại, vị trí cài đặt và trạng thái dependency. Luôn gọi đầu tiên trong /odoo2sheet-start; không hỏi người dùng hệ điều hành hoặc đường dẫn nếu tool đã trả về.",
+        "inputSchema": {"type": "object", "properties": {}, "additionalProperties": False},
+        "annotations": {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+    },
     {
         "name": "discover_databases",
         "description": "Tìm tên database trên máy chủ Odoo sau khi người dùng cung cấp auth. Dùng hồ sơ đã lưu hoặc URL/API key của kết nối mới. Chỉ đọc danh sách; không sửa dữ liệu Odoo.",
@@ -113,7 +120,7 @@ TOOLS = [
     },
     {
         "name": "clean_local_data",
-        "description": "Xóa cấu hình/tùy chọn Odoo To Sheet, các tệp CSV trong thư mục output đã xem trước và thư mục .odoo2shet-env của repo. Chỉ gọi sau preview và khi người dùng xác nhận đã sao lưu output cùng việc dọn dữ liệu.",
+        "description": f"Xóa cấu hình/tùy chọn Odoo To Sheet, các tệp CSV trong thư mục output đã xem trước và môi trường {CLEANUP_ENV_NAME}. Chỉ gọi sau preview và khi người dùng xác nhận đã sao lưu output cùng việc dọn dữ liệu.",
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -226,16 +233,54 @@ TOOLS = [
 
 
 def _text_result(value: Any, *, is_error: bool = False) -> dict[str, Any]:
-    return {"content": [{"type": "text", "text": json.dumps(value, ensure_ascii=False, default=str)}], "isError": is_error}
+    return {
+        "content": [{"type": "text", "text": json.dumps(value, ensure_ascii=False, default=str)}],
+        "structuredContent": value,
+        "isError": is_error,
+    }
 
 
 def _require_plugin_runtime() -> None:
     configured_env = os.environ.get("ODOO2SHEET_ENV_DIR")
     if not configured_env:
-        raise OdooError("Môi trường tool chưa được khởi tạo. Hãy khởi động lại plugin để chuẩn bị .odoo2shet-env.")
+        raise OdooError(f"Môi trường tool chưa được khởi tạo. Hãy khởi động lại plugin để chuẩn bị {CLEANUP_ENV_NAME}.")
     env_dir = Path(configured_env).expanduser().resolve()
     if not env_dir.is_dir() or Path(sys.prefix).resolve() != env_dir:
-        raise OdooError("Tool chưa chạy trong .odoo2shet-env. Hãy khởi động lại plugin để dùng đúng môi trường đã cài.")
+        raise OdooError(f"Tool chưa chạy trong {CLEANUP_ENV_NAME}. Hãy khởi động lại plugin để dùng đúng môi trường đã cài.")
+
+
+def _handle_get_runtime_status() -> dict[str, Any]:
+    env_dir = Path(os.environ["ODOO2SHEET_ENV_DIR"]).expanduser().resolve()
+    requirements_path = Path(__file__).resolve().parent.parent / "requirements.txt"
+    requirements = []
+    if requirements_path.is_file():
+        requirements = [
+            line.strip()
+            for line in requirements_path.read_text(encoding="utf-8").splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        ]
+    action = os.environ.get("ODOO2SHEET_RUNTIME_ACTION", "reused")
+    return {
+        "ready": True,
+        "platform": platform_details(),
+        "environment": {
+            "name": env_dir.name,
+            "path": str(env_dir),
+            "action": action,
+            "location": os.environ.get("ODOO2SHEET_ENV_LOCATION", "configured"),
+        },
+        "python": {
+            "version": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
+            "executable": sys.executable,
+        },
+        "dependencies": {
+            "requirements_file": str(requirements_path),
+            "declared_count": len(requirements),
+            "action": "updated" if action in {"created_and_installed", "dependencies_updated"} else "unchanged",
+        },
+        "config_file": str(config_path()),
+        "default_output_dir": str(DEFAULT_OUTPUT_DIR.resolve()),
+    }
 
 
 def _handle_list_connections() -> dict[str, Any]:
@@ -553,8 +598,7 @@ def _cleanup_environment_path() -> Path:
     configured = os.environ.get("ODOO2SHEET_ENV_DIR")
     if configured:
         return Path(configured).expanduser()
-    root = Path(__file__).resolve().parents[3]
-    return root / CLEANUP_ENV_NAME
+    return user_data_dir() / CLEANUP_ENV_NAME
 
 
 def _absolute_path(path: Path) -> Path:
@@ -696,7 +740,7 @@ def _handle_clean_local_data(args: dict[str, Any]) -> dict[str, Any]:
             except OSError as exc:
                 errors.append({"path": str(env_path), "error": f"Không thể xóa môi trường đang dùng: {exc}"})
         else:
-            errors.append({"path": str(env_path), "error": "Đường dẫn môi trường không phải thư mục an toàn có tên .odoo2shet-env; được giữ lại."})
+            errors.append({"path": str(env_path), "error": f"Đường dẫn môi trường không phải thư mục an toàn có tên {CLEANUP_ENV_NAME}; được giữ lại."})
 
     config_state = plan["config"]
     removed_config = False
@@ -955,6 +999,8 @@ def _call_tool(name: str, args: Any) -> dict[str, Any]:
     _require_plugin_runtime()
     if not isinstance(args, dict):
         raise OdooError("Tham số công cụ phải là một đối tượng JSON.")
+    if name == "get_runtime_status":
+        return _handle_get_runtime_status()
     if name == "preview_local_cleanup":
         return _handle_preview_local_cleanup()
     if name == "clean_local_data":
@@ -1012,7 +1058,7 @@ def _handle_message(message: Any) -> None:
             "protocolVersion": requested_version,
             "capabilities": {"tools": {"listChanged": False}},
             "serverInfo": {"name": "odoo2sheet", "version": SERVER_VERSION},
-            "instructions": "Trả lời bằng tiếng Việt trừ khi người dùng yêu cầu ngôn ngữ khác. Plugin tự chạy scripts/run_odoo_mcp_server.py trước khi mở MCP: kiểm tra và dùng lại .odoo2shet-env, không tạo lại nếu đã có; pip kiểm tra requirements.txt và chỉ cài gói còn thiếu vào đúng môi trường đó. Mỗi lời gọi tool được chặn nếu MCP server không chạy trong môi trường này. Không yêu cầu người dùng tạo env, cài thư viện bằng Terminal hoặc lặp lại thiết lập. Khi người dùng bắt đầu kết nối bằng /odoo2sheet-start, dùng HITL trong chat để thu thập URL, email và API key còn thiếu; kiểm tra trạng thái bằng list_connections, tự tìm database bằng discover_databases, tự lưu nếu chỉ có một và chỉ hỏi chọn nếu có nhiều; sau đó gọi check_connection. Nếu sai thông tin đăng nhập, hỏi người dùng nhập lại email/API key rồi cập nhật hồ sơ và kiểm tra lại. Khi kết nối thành công, báo hoàn tất và đưa lựa chọn các skill tiếp theo. Không yêu cầu xác nhận lại việc lưu cấu hình mà người dùng vừa yêu cầu; vẫn phải xin xác nhận trước khi thay thế/xóa hồ sơ, xóa tùy chọn đã lưu, xuất CSV hoặc lưu tùy chọn báo cáo. Trước khi nói chưa có hồ sơ, gọi list_connections. Không hiển thị hay nhắc lại API key. API key được lưu cục bộ; dữ liệu nghiệp vụ Odoo chỉ được đọc.",
+            "instructions": "Trả lời bằng tiếng Việt trừ khi người dùng yêu cầu ngôn ngữ khác. /odoo2sheet-start luôn theo thứ tự: get_runtime_status, list_connections, bổ sung auth còn thiếu, tự tìm/lưu database, check_connection, rồi hỏi bước tiếp theo. Tự lấy hệ điều hành, đường dẫn runtime, hồ sơ và cấu hình bằng tool; không hỏi người dùng dữ liệu máy đã có. Gộp các trường auth còn thiếu vào một câu hỏi và không nhắc lại API key. Chỉ hỏi chọn database khi discover_databases trả nhiều kết quả. Với mọi câu hỏi có lựa chọn, gọi request_user_input nếu host cung cấp; không in menu chữ thay cho cửa sổ HITL. Không dùng UI HTML riêng. Trước thao tác ghi/xóa/xuất, chỉ xin xác nhận khi quyết định đó chưa có trong yêu cầu hiện tại.",
         })
         return
     if method == "ping":

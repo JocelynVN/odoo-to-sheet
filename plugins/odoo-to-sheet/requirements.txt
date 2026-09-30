@@ -1,2 +1,3 @@
 # Add third-party runtime dependencies here only when an MCP tool needs them.
-# The current Odoo MCP server uses Python's standard library only.
+# The launcher installs this file only when its content changes. The current
+# Odoo MCP server uses Python's standard library only.
