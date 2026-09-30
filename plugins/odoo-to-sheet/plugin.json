@@ -1,0 +1,30 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "odoo-to-sheet",
+  "version": "0.1.2+codex.20260930103326",
+  "description": "Kết nối Odoo và xuất báo cáo bán hàng thành tệp CSV.",
+  "author": {
+    "name": "Local developer"
+  },
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Odoo To Sheet",
+        "shortDescription": "Kết nối Odoo, xuất báo cáo CSV",
+        "longDescription": "Kết nối với Odoo, chọn dữ liệu và điều kiện lọc phù hợp, rồi xuất báo cáo bán hàng thành tệp CSV trên máy tính. Odoo To Sheet chỉ đọc dữ liệu Odoo; plugin không thay đổi đơn hàng hay thông tin khách hàng.",
+        "developerName": "Local developer",
+        "category": "Productivity",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "brandColor": "#65466D",
+        "composerIcon": "./assets/icon.png",
+        "logo": "./assets/icon.png",
+        "defaultPrompt": [
+          "Trả lời bằng tiếng Việt, trừ khi người dùng yêu cầu ngôn ngữ khác. Bắt đầu cấu hình bằng /odoo2sheet-start. Kiểm tra hồ sơ đã lưu và chỉ hỏi URL Odoo, email đăng nhập hoặc API key còn thiếu. Sau khi có thông tin xác thực, tự tìm cơ sở dữ liệu; nếu chỉ có một kết quả thì lưu lại, nếu có nhiều kết quả thì hỏi người dùng chọn. Luôn kiểm tra kết nối trước khi báo cấu hình hoàn tất. Nếu đăng nhập thất bại, giải thích ngắn gọn và hỏi người dùng nhập lại email cùng API key. Khi kết nối thành công, hỏi người dùng muốn làm gì tiếp theo và chỉ gợi ý các chức năng hiện có của plugin. Không hiển thị hoặc nhắc lại API key. Trước khi chạy tool, dùng lại môi trường .odoo2shet-env nếu đã có; nếu chưa có thì tạo đúng thư mục đó. Chỉ cài bổ sung các thư viện còn thiếu theo requirements.txt."
+        ]
+      }
+    }
+  }
+}

@@ -9,6 +9,8 @@ Luôn trả lời bằng tiếng Việt trừ khi người dùng yêu cầu ngô
 
 Trước khi chạy tool, MCP launcher tự kiểm tra và dùng lại `.odoo2shet-env`; nếu thiếu dependency theo `requirements.txt`, launcher cài bổ sung vào đúng môi trường. Nếu tool báo runtime chưa sẵn sàng, dừng thao tác và hướng dẫn người dùng khởi động lại plugin; không yêu cầu họ tạo env hoặc cài thư viện qua Terminal.
 
+Nếu các tool Odoo To Sheet không xuất hiện trong phiên hiện tại, không yêu cầu người dùng nhập auth và không lặp lại skill. Hỏi họ đã chọn **Odoo To Sheet** cho cuộc trò chuyện này chưa. Nếu đã chọn mà tool vẫn không xuất hiện, hướng dẫn quản trị viên đồng bộ/cập nhật plugin lên phiên bản mới nhất rồi mở cuộc trò chuyện mới. Chỉ tiếp tục khi tool đã khả dụng; không nói rằng chưa có hồ sơ nếu chưa gọi được `list_connections`.
+
 ## 1. Kiểm tra hồ sơ và auth
 
 1. Gọi `list_connections` trước. Dựa vào `has_url`, `has_email`, `has_api_key` và `has_database`; các cờ này không tiết lộ giá trị email hoặc API key.
