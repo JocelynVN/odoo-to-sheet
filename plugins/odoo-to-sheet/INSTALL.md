@@ -15,7 +15,13 @@ Nếu bạn không có quyền quản trị workspace, nhờ quản trị viên 
 
 ### Môi trường Python của tool
 
-Khi plugin khởi động MCP server, launcher kiểm tra `.odoo2shet-env` trước khi nạp tool. Môi trường có sẵn sẽ được dùng lại; nếu chưa có, plugin tự tạo rồi kiểm tra `requirements.txt` và chỉ cài thư viện còn thiếu. Phiên bản hiện tại dùng thư viện chuẩn Python nên không cần gói bên thứ ba. Người dùng không cần tạo môi trường hoặc cài thư viện bằng Terminal.
+Khi plugin khởi động MCP server, launcher tự phát hiện hệ điều hành và chuẩn bị `.odoo2sheet-env` tại thư mục dữ liệu người dùng:
+
+- Linux: `~/.local/share/odoo2sheet/.odoo2sheet-env` hoặc dưới `$XDG_DATA_HOME`.
+- macOS: `~/Library/Application Support/OdooToSheet/.odoo2sheet-env`.
+- Windows: `%LOCALAPPDATA%\OdooToSheet\.odoo2sheet-env`.
+
+Môi trường hợp lệ được dùng lại. Dependency chỉ được cài khi nội dung `requirements.txt` thay đổi; phiên bản hiện tại dùng thư viện chuẩn Python nên không cần gói bên thứ ba. `/odoo2sheet-start` đọc trạng thái runtime bằng tool, không hỏi người dùng OS hay đường dẫn.
 
 ## Cài plugin trong không gian làm việc
 
@@ -42,7 +48,7 @@ Trong cuộc trò chuyện đã chọn plugin, gõ `/odoo2sheet-start` hoặc nh
 - API key do Odoo cấp.
 - Nếu muốn đổi, đường dẫn thư mục để lưu CSV. Mặc định là thư mục `odoo2sheet-output` trong thư mục cá nhân trên máy.
 
-ChatGPT Desktop kiểm tra hồ sơ đã lưu và hỏi từng thông tin còn thiếu trong chat. Sau khi nhận auth, plugin tự tìm database; nếu chỉ có một, plugin tự lưu, còn nếu có nhiều thì hỏi bạn chọn bằng số. Nếu máy chủ không cho liệt kê, plugin sẽ hỏi tên database. Khi đăng nhập sai, plugin hỏi nhập lại email và API key. API key được nhập trong cuộc trò chuyện riêng, có thể còn trong lịch sử chat và được lưu trong file cấu hình cục bộ chưa mã hóa; plugin sẽ thông báo điều này trước khi hỏi key. Sau khi kết nối thành công, plugin hỏi bạn muốn dùng skill nào tiếp theo. Gõ `/odoo2sheet-help` để mở hộp lựa chọn các hướng dẫn phổ biến.
+ChatGPT Desktop thực hiện một luồng liên tục: kiểm tra runtime, kiểm tra auth đã lưu, hỏi một lần đúng các trường còn thiếu, lưu hồ sơ, tự tìm database, kiểm tra kết nối rồi hỏi bước tiếp theo. Nếu chỉ có một database, plugin tự lưu; nếu có nhiều, plugin mở câu hỏi HITL gốc để bạn chọn. Khi đăng nhập sai, plugin chỉ hỏi lại email và API key. API key có thể còn trong lịch sử cuộc trò chuyện riêng và được lưu trong file cấu hình cục bộ chưa mã hóa; plugin sẽ thông báo trước khi hỏi.
 
 ## Xuất báo cáo CSV
 
@@ -66,7 +72,7 @@ Marketplace mới được kiểm tra thay đổi hằng ngày. Sau khi sync, qu
 
 ## Gỡ plugin hoặc xóa hồ sơ kết nối
 
-- Để dọn dữ liệu local trước khi gỡ, dùng `/odoo2sheet-uninstall`. Plugin sẽ xem trước file cấu hình, CSV trong các thư mục output và `.odoo2shet-env`; bạn cần xác nhận đã sao lưu CSV và xác nhận xóa trong chat. Không có bước nào xóa dữ liệu trước khi bạn xác nhận.
+- Để dọn dữ liệu local trước khi gỡ, dùng `/odoo2sheet-uninstall`. Plugin sẽ xem trước file cấu hình, CSV trong các thư mục output và `.odoo2sheet-env`; bạn cần xác nhận đã sao lưu CSV và xác nhận xóa trong chat. Không có bước nào xóa dữ liệu trước khi bạn xác nhận.
 - Với plugin cài riêng, mở tab **Plugins → Installed**, mở Odoo To Sheet và chọn **Uninstall plugin** nếu tùy chọn này có sẵn. Plugin workspace-installed hoặc plugin mặc định có thể không có nút gỡ; khi đó nhờ quản trị viên quản lý plugin trong **Admin → Plugins**. Không xóa cả marketplace chỉ để gỡ một plugin.
 
 ## Nếu không cài được

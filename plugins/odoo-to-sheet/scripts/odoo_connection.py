@@ -13,8 +13,10 @@ import xmlrpc.client
 from pathlib import Path
 from typing import Any
 
+from odoo_runtime import default_config_path
 
-DEFAULT_CONFIG = Path.home() / ".config" / "odoo2sheet" / "config.json"
+
+DEFAULT_CONFIG = default_config_path()
 DEFAULT_OUTPUT_DIR = Path.home() / "odoo2sheet-output"
 CONFIG_PATH = Path(
     os.environ.get("ODOO2SHEET_CONFIG")

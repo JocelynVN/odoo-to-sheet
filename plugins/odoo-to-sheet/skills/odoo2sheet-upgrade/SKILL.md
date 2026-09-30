@@ -9,7 +9,7 @@ Luôn trả lời bằng tiếng Việt trừ khi người dùng yêu cầu ngô
 
 ## 1. Xác định nguồn cài đặt
 
-Nếu chưa biết nguồn, hỏi người dùng bằng HITL:
+Nếu chưa biết nguồn, gọi `request_user_input` nếu host cung cấp. Không in menu chữ thay cho cửa sổ HITL khi công cụ đang khả dụng. Nếu host không có công cụ này, hỏi trực tiếp trong chat:
 
 **Odoo To Sheet được cài theo cách nào?**
 
@@ -52,7 +52,7 @@ Không hướng dẫn xóa marketplace để xử lý lỗi sync hoặc để c�
 ## 4. Dữ liệu cục bộ và thư viện tool
 
 - Hồ sơ kết nối và tùy chọn báo cáo nằm trong tệp cấu hình Odoo To Sheet cục bộ; CSV nằm ở các thư mục output của người dùng. Quy trình sync plugin không nhắm tới các vị trí này, nhưng không cam kết với một bản triển khai đã tùy biến.
-- MCP launcher của plugin tự kiểm tra và dùng lại `.odoo2shet-env`; thư viện còn thiếu theo `requirements.txt` sẽ được cài bổ sung vào đúng môi trường đó khi MCP server khởi chạy. Không yêu cầu người dùng tự tạo env hoặc cài thư viện qua Terminal.
+- Sau khi cập nhật, MCP launcher tự kiểm tra `.odoo2sheet-env` trong thư mục dữ liệu người dùng của hệ điều hành. Nó dùng lại môi trường nếu hợp lệ và chỉ cài dependency khi `requirements.txt` thay đổi. Không hỏi người dùng OS, đường dẫn env hoặc yêu cầu cài thư viện qua Terminal.
 
 ## Nguồn tham khảo
 

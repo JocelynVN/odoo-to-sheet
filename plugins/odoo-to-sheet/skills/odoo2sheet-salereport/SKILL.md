@@ -1,63 +1,59 @@
 ---
 name: odoo2sheet-salereport
-description: Xuất dữ liệu báo cáo bán hàng sale.report của Odoo thành CSV. Dùng khi người dùng yêu cầu báo cáo bán hàng hoặc gọi /odoo2sheet-salereport.
+description: Xuất dữ liệu sale.report của Odoo thành CSV với ít câu hỏi nhất. Dùng khi người dùng yêu cầu báo cáo bán hàng hoặc gọi /odoo2sheet-salereport.
 ---
 
 # Xuất sale.report sang CSV
 
-Luôn trả lời bằng tiếng Việt, trừ khi người dùng yêu cầu rõ ràng ngôn ngữ khác. Không yêu cầu người dùng tự viết domain Odoo hoặc tự liệt kê tên trường kỹ thuật để dùng được luồng cơ bản.
+Luôn trả lời bằng tiếng Việt trừ khi người dùng yêu cầu ngôn ngữ khác. Không mở UI riêng. Không yêu cầu người dùng viết domain Odoo hoặc tên trường kỹ thuật.
 
-Trước khi chạy tool, MCP launcher tự kiểm tra và dùng lại `.odoo2shet-env`; nếu thiếu dependency theo `requirements.txt`, launcher cài bổ sung vào đúng môi trường. Nếu tool báo runtime chưa sẵn sàng, dừng thao tác và hướng dẫn khởi động lại plugin; không yêu cầu người dùng tự tạo env hoặc cài thư viện qua Terminal.
+## Nguyên tắc HITL
 
-## Cách hỏi theo HITL
+- Dùng toàn bộ thông tin đã có trong yêu cầu và cấu hình; không hỏi lại.
+- Tự dùng hồ sơ duy nhất. Chỉ hỏi chọn hồ sơ khi có nhiều; khi đó gọi `request_user_input` nếu host cung cấp, không in menu chữ thay thế.
+- Tự ánh xạ cách gọi thông thường sang metadata thật từ Odoo.
+- Nếu thiếu nhiều quyết định, gom thành một câu hỏi. Ưu tiên đưa một cấu hình đề xuất hoàn chỉnh để người dùng chỉ cần trả lời **Xuất** hoặc nêu phần muốn sửa.
+- Không hỏi xác nhận riêng từng bộ lọc/cột. Một lần xác nhận bản tóm tắt cuối là đủ.
 
-- Tận dụng các bộ lọc, khoảng ngày, cột và giới hạn dòng mà người dùng đã nêu; không hỏi lại điều đã rõ trong yêu cầu.
-- Hỏi trong hội thoại, mỗi lượt chỉ hỏi phần còn thiếu hoặc cần người dùng quyết định. Dùng câu ngắn và lựa chọn đánh số; không mở hoặc nhắc đến biểu mẫu UI.
-- Bộ lọc và cột đã lưu là gợi ý, không phải sự đồng ý mặc định. Đưa chúng vào phần tóm tắt cuối để người dùng xác nhận hoặc sửa; không hỏi xác nhận riêng cho từng mục đã lưu. Yêu cầu hiện tại luôn được ưu tiên. Nếu người dùng nói xuất không lọc, dùng domain rỗng.
-- Chỉ hỏi phần còn thiếu hoặc mơ hồ. Không yêu cầu lại hồ sơ, email hoặc key trong bước xuất báo cáo.
-- Giữ lại nhãn và tên trường kỹ thuật Odoo khi cần đối chiếu, nhưng giải thích lựa chọn bằng tiếng Việt.
+## 1. Kiểm tra sẵn sàng
 
-## Bước 1: chọn dịch vụ Odoo
+1. Gọi `get_runtime_status`, sau đó `list_connections`.
+2. Nếu không có hồ sơ hoặc hồ sơ thiếu auth/database, thực hiện luồng `/odoo2sheet-start`; không yêu cầu người dùng gọi lại command.
+3. Nếu có nhiều hồ sơ, hỏi chọn một lần bằng tên/URL. Nếu có một, dùng luôn.
+4. Gọi `check_connection`; nếu lỗi auth, chuyển thẳng sang bước sửa auth của `/odoo2sheet-start`.
+5. Gọi `describe_model` với `sale.report`. Nếu không có quyền, nói rõ và dừng; không tự đổi sang model khác.
+6. Gọi `get_report_preferences` cho hồ sơ và `sale.report`.
 
-1. Gọi `list_connections` trước mọi câu trả lời về hồ sơ. Không nói “chưa có hồ sơ” nếu kết quả có kết nối hoặc công cụ bị lỗi.
-2. Nếu không có hồ sơ, hướng dẫn người dùng gọi `/odoo2sheet-start` rồi dừng trước khi truy vấn Odoo.
-3. Nếu chỉ có một hồ sơ, dùng hồ sơ đó. Nếu có nhiều hồ sơ, hiển thị tên/URL và hỏi người dùng chọn bằng số hoặc tên. Không yêu cầu gửi thông tin đăng nhập.
-4. Nếu hồ sơ thiếu URL, email, API key hoặc database theo các cờ trong `list_connections`, hướng dẫn người dùng gọi `/odoo2sheet-start` rồi dừng.
-5. Gọi `check_connection`. Nếu xác thực thất bại, hướng dẫn người dùng gọi `/odoo2sheet-start` để nhập lại email/API key; nếu lỗi khác, giải thích đúng lỗi rồi dừng. Chỉ tiếp tục khi `connected=true`.
-6. Gọi `describe_model` với `sale.report`. Dùng nhãn, tên kỹ thuật, kiểu, quan hệ và giá trị lựa chọn trả về cho mọi gợi ý sau đó. Nếu Odoo không cho truy cập `sale.report`, nói rõ và dừng; không thay bằng `sale.order` hoặc mô hình khác.
-7. Gọi `get_report_preferences` cho hồ sơ đã chọn và `sale.report`.
+## 2. Lập cấu hình đề xuất
 
-## Bước 2: chọn bộ lọc
+Ưu tiên theo thứ tự:
 
-Nếu yêu cầu hiện tại nêu bộ lọc, dùng bộ lọc đó. Nếu người dùng nói xuất không lọc, dùng domain rỗng kể cả khi có bộ lọc đã lưu. Nếu bộ lọc chưa được nói rõ và có bộ lọc đã lưu, dùng nó làm đề xuất trong phần tóm tắt cuối. Nếu chưa có bộ lọc, hỏi người dùng muốn xuất không lọc hay chọn bộ lọc mới. Chỉ gợi ý bộ lọc ứng với trường thực sự có trong metadata `sale.report`, chẳng hạn:
+1. Yêu cầu hiện tại của người dùng.
+2. Bộ lọc/cột đã lưu còn hợp lệ.
+3. Gợi ý mặc định từ metadata thật.
 
-- Khoảng ngày, dựa trên trường ngày phù hợp có trong metadata.
-- Trạng thái đơn, dùng đúng các giá trị lựa chọn Odoo trả về.
-- Khách hàng, nhân viên bán hàng, đội bán hàng, công ty, sản phẩm hoặc nhóm sản phẩm nếu có trường quan hệ tương ứng.
+Quy tắc:
 
-Khi cần người dùng chọn bộ lọc mới, hãy hỏi ngắn gọn về phần còn thiếu. Nếu có nhiều trường ngày, hỏi họ chọn trường nào trước khi hỏi khoảng ngày. Không tự thêm trạng thái, công ty hay mốc ngày. Với khoảng ngày bao gồm cả ngày cuối, dùng toán tử `>=` cho ngày bắt đầu và `<` cho ngày sau ngày kết thúc. Nếu tiêu chí vẫn mơ hồ, hỏi đúng phần chưa rõ.
+- Nếu người dùng nói không lọc, dùng domain rỗng.
+- Nếu chưa có bộ lọc, đề xuất không lọc và giới hạn 10.000 dòng; người dùng có thể sửa trong bước xác nhận.
+- Nếu chưa có cột, tự đề xuất một nhóm cột phổ biến thực sự tồn tại: ngày, số đơn, khách hàng, sản phẩm, số lượng, doanh thu và nhân viên bán hàng. Không đưa trường không có trong metadata.
+- Nếu cách gọi của người dùng khớp nhiều trường, hỏi đúng một câu để phân biệt. Nếu nhiều trường ngày, hỏi chọn trường ngày cùng khoảng thời gian trong một lượt.
+- Khoảng ngày bao gồm ngày cuối dùng `>=` ngày bắt đầu và `<` ngày kế tiếp sau ngày kết thúc.
+- Chỉ nhận domain thô khi người dùng chủ động yêu cầu chế độ nâng cao.
 
-Không yêu cầu người dùng nhập domain thô hoặc tự soạn cú pháp. Chỉ nhận domain thô khi họ chủ động yêu cầu thao tác nâng cao bằng domain Odoo.
+## 3. Xác nhận và xuất
 
-## Bước 3: chọn các cột CSV
+Tóm tắt trong một khối ngắn: hồ sơ, bộ lọc, cột CSV, giới hạn dòng và thư mục lưu. Nếu host hỗ trợ `request_user_input`, dùng câu hỏi này với lựa chọn **Xuất ngay** và **Sửa cấu hình**; nếu không thì hỏi trực tiếp: **“Xuất theo cấu hình này hay bạn muốn sửa mục nào?”**
 
-Nếu yêu cầu hiện tại nêu cột, dùng các cột đó. Nếu chưa nêu cột và có cột đã lưu, dùng chúng làm đề xuất trong phần tóm tắt cuối. Nếu chưa có cột đã lưu, trình bày danh sách cột khả dụng từ metadata để người dùng chọn một hay nhiều mục.
+- Nếu người dùng xác nhận, gọi `export_csv` ngay.
+- Nếu họ sửa, chỉ cập nhật phần đó, trình bày lại bản tóm tắt mới và xin một lần xác nhận cuối.
+- Mặc định tối đa 10.000 dòng, giới hạn cứng 50.000. Nếu chạm giới hạn, báo tệp có thể chưa đủ dữ liệu và gợi ý thu hẹp lọc hoặc tăng giới hạn.
+- Sau khi xuất, báo đường dẫn, số dòng, model, bộ lọc và nhãn cột. Không dán dữ liệu vào chat nếu người dùng không yêu cầu.
 
-Chỉ đưa vào danh sách các trường hiện diện trong metadata. Có thể gợi ý ngày, số đơn, khách hàng, sản phẩm, nhân viên bán hàng, đội bán hàng, số lượng, doanh thu trước thuế, tổng tiền, chiết khấu hoặc biên lợi nhuận khi các trường đó thực sự tồn tại. Hiển thị nhãn dễ hiểu; thêm tên kỹ thuật trong ngoặc nếu giúp phân biệt. Người dùng chọn bằng số hoặc nhiều số, không cần tự gõ tên trường.
+## 4. Lưu cấu hình
 
-Ánh xạ lựa chọn sang tên trường kỹ thuật bằng `describe_model`, xử lý điểm mơ hồ trước khi xuất và chỉ xuất các trường đã chọn. Nếu cột đã lưu không còn tồn tại, báo bằng tiếng Việt và yêu cầu chọn cột mới qua danh sách metadata.
+- Nếu người dùng đã yêu cầu lưu cho lần sau, gọi `save_report_preferences` sau khi xuất thành công.
+- Nếu cấu hình khác bản đã lưu và người dùng chưa nói, hỏi một câu: **“Lưu cấu hình này cho lần sau không?”**
+- Không hỏi nếu họ dùng nguyên cấu hình đã lưu hoặc đã nói chỉ dùng lần này.
 
-## Bước 4: xuất và lưu thiết lập
-
-Trước khi gọi `export_csv`, tóm tắt trong chat: hồ sơ Odoo, bộ lọc theo ngôn ngữ thường, cột CSV, giới hạn dòng và thư mục lưu. Hỏi người dùng xác nhận xuất hay muốn chỉnh mục nào; chờ câu trả lời rồi mới tiếp tục. Nếu họ muốn chỉnh, chỉ hỏi về phần đó và trình bày lại tóm tắt mới trước khi xuất.
-
-Sau khi người dùng xác nhận, gọi `export_csv` với model `sale.report`, các trường trực tiếp đã chọn, domain đã được người dùng duyệt và thứ tự/giới hạn dòng nếu họ yêu cầu. Mặc định tối đa 10.000 dòng; giới hạn cứng 50.000. Nếu kết quả báo `max_records_reached=true`, nói rõ đã chạm giới hạn và tệp có thể chỉ chứa một phần kết quả; đề nghị thu hẹp bộ lọc hoặc tăng giới hạn tối đa lên 50.000 dòng.
-
-Sau khi xuất thành công, báo đường dẫn tệp, số dòng, model, bộ lọc và nhãn cột bằng tiếng Việt. CSV được lưu trong thư mục của hồ sơ đã chọn; hồ sơ mới mặc định dùng `~/odoo2sheet-output`, được tạo tự động khi cần. Tên mặc định `odoo2sheet-sale-report-YYYYMMDD-HHMMSS.csv`; nếu trùng tên, công cụ thêm số thứ tự, không ghi đè.
-
-Sau khi xuất, nếu người dùng đã yêu cầu lưu cấu hình mới thì gọi `save_report_preferences`. Nếu chưa, hỏi có muốn lưu bộ lọc/cột mới cho lần sau không; chỉ gọi công cụ sau khi họ đồng ý. Không hỏi lưu lại nếu người dùng vừa dùng nguyên cấu hình đã lưu. Nếu họ yêu cầu chỉ dùng lần này, không lưu. Khi cần hỏi:
-
-- **1. Lưu cho lần sau**: gọi `save_report_preferences`, thay thiết lập gần nhất cho hồ sơ/model này.
-- **2. Chỉ dùng lần này**: không thay đổi thiết lập đã lưu.
-
-Không dán các dòng dữ liệu bán hàng vào chat trừ khi người dùng yêu cầu xem. Truy cập Odoo chỉ đọc; plugin chỉ ghi CSV và tùy chọn cục bộ trên máy.
+Plugin chỉ đọc dữ liệu nghiệp vụ Odoo; phần ghi chỉ gồm CSV và tùy chọn cục bộ.

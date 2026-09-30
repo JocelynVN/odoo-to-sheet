@@ -1,51 +1,73 @@
 ---
 name: odoo2sheet-start
-description: Bắt đầu hoặc hoàn tất cấu hình Odoo To Sheet. Dùng khi người dùng gọi /odoo2sheet-start, kết nối Odoo lần đầu, hoặc muốn kiểm tra và hoàn tất cấu hình.
+description: Chuẩn bị runtime và hoàn tất kết nối Odoo theo một luồng liên tục. Dùng khi người dùng gọi /odoo2sheet-start, kết nối lần đầu, hoặc muốn kiểm tra cấu hình.
 ---
 
 # Bắt đầu với Odoo To Sheet
 
-Luôn trả lời bằng tiếng Việt trừ khi người dùng yêu cầu ngôn ngữ khác. Thực hiện toàn bộ bằng hội thoại HITL; không mở hoặc nhắc đến UI. Hỏi ngắn gọn đúng phần còn thiếu, dùng lựa chọn đánh số khi cần người dùng chọn. Không yêu cầu người dùng nhập lại thông tin đã có trong cấu hình, trừ khi kiểm tra xác thực báo thông tin đăng nhập sai.
+Luôn trả lời bằng tiếng Việt trừ khi người dùng yêu cầu ngôn ngữ khác. Thực hiện đúng thứ tự bên dưới, không nhảy bước và không mở UI riêng. Dùng HITL trực tiếp trong hội thoại khi thật sự cần người dùng chọn hoặc cung cấp dữ liệu.
 
-Trước khi chạy tool, MCP launcher tự kiểm tra và dùng lại `.odoo2shet-env`; nếu thiếu dependency theo `requirements.txt`, launcher cài bổ sung vào đúng môi trường. Nếu tool báo runtime chưa sẵn sàng, dừng thao tác và hướng dẫn người dùng khởi động lại plugin; không yêu cầu họ tạo env hoặc cài thư viện qua Terminal.
+## Cách dùng HITL gốc của host
 
-Nếu các tool Odoo To Sheet không xuất hiện trong phiên hiện tại, không yêu cầu người dùng nhập auth và không lặp lại skill. Hỏi họ đã chọn **Odoo To Sheet** cho cuộc trò chuyện này chưa. Nếu đã chọn mà tool vẫn không xuất hiện, hướng dẫn quản trị viên đồng bộ/cập nhật plugin lên phiên bản mới nhất rồi mở cuộc trò chuyện mới. Chỉ tiếp tục khi tool đã khả dụng; không nói rằng chưa có hồ sơ nếu chưa gọi được `list_connections`.
+- Khi cần người dùng **chọn** hồ sơ, database hoặc bước tiếp theo, phải gọi công cụ hỏi người dùng gốc `request_user_input` nếu host cung cấp. Mỗi lựa chọn có nhãn ngắn và một câu mô tả tác động.
+- Không in một menu đánh số rồi kết thúc lượt nếu `request_user_input` đang khả dụng.
+- URL, email và API key là dữ liệu tự do. Gom các trường còn thiếu vào một câu hỏi; dùng trường nhập tự do/bí mật của HITL nếu host hỗ trợ, nếu không thì hỏi trực tiếp trong chat một lần.
+- Khi host không có `request_user_input`, đặt đúng một câu hỏi ngắn trong chat và chờ câu trả lời. Không dựng UI HTML hoặc gọi resource UI để thay thế.
 
-## 1. Kiểm tra hồ sơ và auth
+## Nguyên tắc giảm nhập liệu
 
-1. Gọi `list_connections` trước. Dựa vào `has_url`, `has_email`, `has_api_key` và `has_database`; các cờ này không tiết lộ giá trị email hoặc API key.
-2. Nếu có nhiều hồ sơ, hỏi người dùng chọn hồ sơ bằng tên hoặc số, hoặc chọn tạo kết nối mới. Nếu chỉ có một hồ sơ, dùng hồ sơ đó, trừ khi người dùng yêu cầu kết nối mới. Nếu cần tạo mới, đặt tên tự động: dùng `odoo` nếu còn trống, nếu không thì lần lượt `odoo-2`, `odoo-3`, ...; không hỏi tên hồ sơ.
-3. Thu thập URL Odoo, email và API key còn thiếu. Có thể hỏi URL và email cùng một lượt, rồi hỏi API key sau khi thông báo key sẽ nằm trong lịch sử cuộc trò chuyện riêng và được lưu trong file cấu hình cục bộ chưa mã hóa. Không thu thập key trong cuộc trò chuyện nhóm/chia sẻ. Không hiển thị hay nhắc lại key trong câu trả lời.
-4. Ưu tiên HTTPS. Nếu URL dùng HTTP, giải thích kết nối không mã hóa và hỏi người dùng có muốn tiếp tục không; chỉ dùng `allow_http=true` sau khi họ đồng ý.
-5. Với hồ sơ hiện có, cập nhật các trường auth vừa thu thập bằng `update_connection` trước khi kiểm tra database hoặc kết nối. Chỉ truyền các trường còn thiếu hoặc vừa được sửa; không đọc hay gửi lại giá trị auth đã lưu.
+- Tự đọc mọi trạng thái có thể lấy bằng tool: hệ điều hành, vị trí runtime, hồ sơ, URL, database và thư mục output. Không hỏi lại dữ liệu đã có.
+- Nếu thiếu nhiều trường auth, hỏi tất cả trường còn thiếu trong **một lượt**. Không chia URL, email và API key thành nhiều câu hỏi.
+- Tự đặt tên hồ sơ mới: `odoo`, rồi `odoo-2`, `odoo-3`, ... Không hỏi tên hồ sơ nếu người dùng không yêu cầu.
+- Chỉ hỏi chọn hồ sơ khi có nhiều hồ sơ. Chỉ hỏi chọn database khi Odoo trả nhiều database.
+- Không yêu cầu người dùng xác nhận lại thao tác họ vừa yêu cầu. Vẫn xin xác nhận cho HTTP không mã hóa, thay thế/xóa dữ liệu hoặc xóa tùy chọn báo cáo.
+- Không hiển thị hay nhắc lại API key.
 
-## 2. Tự lấy database
+## 1. Chuẩn bị môi trường chạy tool
 
-1. Nếu hồ sơ đã có database, bỏ qua bước này.
-2. Nếu chưa có hồ sơ đã lưu, gọi `discover_databases` bằng URL và API key người dùng vừa cung cấp. Nếu hồ sơ đã tồn tại và auth đã đủ, gọi bằng `profile`.
-3. Xử lý kết quả:
-   - Có đúng một database: tự lưu tên đó vào hồ sơ bằng `save_connection` (hồ sơ mới) hoặc `update_connection` (hồ sơ hiện có); không hỏi người dùng chọn.
-   - Có từ hai database trở lên: trình bày danh sách đánh số, hỏi người dùng chọn, rồi lưu lựa chọn vào hồ sơ.
-   - Nếu `available=false` và lỗi nêu xác thực thất bại/HTTP 401, báo auth chưa hợp lệ, hỏi người dùng nhập lại email/API key, cập nhật hồ sơ hiện có nếu có, rồi gọi lại `discover_databases`.
-   - Với lỗi liệt kê khác hoặc danh sách rỗng, giải thích ngắn gọn và hỏi tên database. Nếu người dùng không biết, không tự đoán; có thể thử kết nối không có database chỉ khi phiên bản/cấu hình Odoo hỗ trợ JSON-2 không cần chọn database. Nếu không xác định được khả năng đó, tiếp tục hỏi tên database.
-4. Nếu đổi URL hoặc database khiến tùy chọn báo cáo đã lưu bị xóa, công cụ sẽ yêu cầu xác nhận riêng. Hãy cho người dùng biết rõ tác động và chỉ gọi lại `update_connection` với `confirm_clear_preferences=true` sau khi họ đồng ý.
+1. Gọi `get_runtime_status` trước mọi tool khác.
+2. Launcher đã tự phát hiện hệ điều hành và tự tạo hoặc dùng lại `.odoo2sheet-env` tại thư mục dữ liệu người dùng phù hợp với hệ điều hành. Không hỏi người dùng dùng OS nào hoặc muốn cài ở đâu.
+3. Nếu `ready=true`, tiếp tục ngay. Nếu `environment.action` là `created`, `created_and_installed` hoặc `dependencies_updated`, báo ngắn gọn OS và đường dẫn đã chuẩn bị; không yêu cầu xác nhận.
+4. Nếu tool không xuất hiện, chưa được phép thu thập auth. Hỏi người dùng đã chọn **Odoo To Sheet** cho cuộc trò chuyện này chưa. Nếu đã chọn mà tool vẫn thiếu, hướng dẫn đồng bộ plugin rồi mở cuộc trò chuyện mới.
+5. Nếu launcher báo lỗi, nêu đúng OS, đường dẫn dự kiến và lỗi. Chỉ yêu cầu người dùng can thiệp khi lỗi cho thấy máy thiếu Python/venv hoặc không có quyền ghi; không yêu cầu họ lặp lại các bước đã thành công.
 
-## 3. Kiểm tra kết nối và xử lý lỗi
+## 2. Kiểm tra auth đã lưu
 
-1. Khi hồ sơ đã có URL, email, API key và database cần thiết, gọi `check_connection`. Không dùng `describe_model sale.report` để thay cho kiểm tra auth, vì quyền với model bán hàng là bước riêng.
-2. Nếu `connected=true`, báo cấu hình kết nối đã hoàn tất, nêu tên hồ sơ và database; không hiển thị email hoặc API key.
-3. Nếu `authentication_error=true` hoặc thông báo nêu xác thực thất bại/HTTP 401, giải thích rằng đăng nhập chưa thành công và hỏi người dùng nhập lại email và API key. Cập nhật hồ sơ bằng `update_connection`, rồi gọi lại `check_connection`. Lặp lại nếu họ cung cấp thông tin mới mà vẫn lỗi.
-4. Nếu lỗi không phải xác thực, diễn giải đúng lỗi thực tế. Với URL/network, hỏi sửa URL hoặc kiểm tra máy chủ. Với database, hỏi kiểm tra/chọn database. Với HTTP 403 hoặc quyền truy cập, nói rõ Odoo từ chối quyền; không yêu cầu thay key trừ khi lỗi cho thấy auth sai.
-5. Không tuyên bố kết nối thành công nếu `check_connection` chưa trả `connected=true`.
+1. Gọi `list_connections`.
+2. Nếu có một hồ sơ, dùng hồ sơ đó. Nếu có nhiều hồ sơ, hỏi một câu HITL để chọn tên hồ sơ hoặc tạo kết nối mới. Nếu không có, tạo tên hồ sơ tự động.
+3. Dựa vào `has_url`, `has_email`, `has_api_key`:
+   - Đủ cả ba: không hỏi auth, sang bước database.
+   - Thiếu trường nào: hỏi một lần chỉ các trường còn thiếu. Với kết nối mới thường hỏi URL Odoo, email và API key trong cùng một tin nhắn.
+4. Trước khi nhận API key, nói ngắn gọn rằng key sẽ nằm trong lịch sử cuộc trò chuyện riêng và được lưu trong tệp cấu hình cục bộ chưa mã hóa. Không thu thập key trong cuộc trò chuyện nhóm/chia sẻ.
+5. Nếu URL dùng HTTP, giải thích kết nối không mã hóa và chờ người dùng đồng ý trước khi dùng `allow_http=true`.
+6. Với hồ sơ mới, gọi `save_connection` ngay sau khi đủ URL, email và API key, chưa cần database. Với hồ sơ hiện có, gọi `update_connection` chỉ với trường vừa bổ sung hoặc sửa.
 
-## 4. Gợi ý bước tiếp theo bằng HITL
+## 3. Kiểm tra và tự lấy database
 
-Sau khi kết nối thành công, thông báo **Đã hoàn tất cấu hình kết nối Odoo** và hỏi người dùng muốn làm gì tiếp theo. Chỉ đưa ra các lựa chọn phù hợp với skill đang có:
+1. Gọi lại `list_connections` sau khi lưu auth để dùng trạng thái mới nhất.
+2. Nếu `has_database=true`, không hỏi database và sang bước kiểm tra kết nối.
+3. Nếu chưa có database, gọi `discover_databases` bằng `profile` đã lưu.
+4. Xử lý kết quả:
+   - Một database: tự gọi `update_connection` để lưu, không hỏi người dùng.
+   - Nhiều database: hỏi một câu HITL với danh sách tên database; lưu đúng lựa chọn bằng `update_connection`.
+   - Không thể liệt kê hoặc danh sách rỗng: hỏi tên database một lần. Không tự đoán.
+5. Nếu thay database làm xóa tùy chọn báo cáo đã lưu, giải thích tác động và chỉ gọi lại với `confirm_clear_preferences=true` sau khi người dùng đồng ý.
 
-1. Xuất báo cáo bán hàng `sale.report` thành CSV — `/odoo2sheet-salereport`.
-2. Hỏi cách dùng hoặc chọn tác vụ — `/odoo2sheet-help`.
+## 4. Kiểm tra kết nối
+
+1. Gọi `check_connection` sau khi hồ sơ đủ auth và database cần thiết.
+2. Chỉ báo thành công khi `connected=true`.
+3. Nếu `authentication_error=true`, hỏi người dùng nhập lại email và API key trong cùng một lượt; gọi `update_connection`, rồi kiểm tra lại. Không hỏi URL/database nếu lỗi không liên quan.
+4. Với lỗi URL/network, hỏi đúng URL cần sửa hoặc yêu cầu kiểm tra máy chủ. Với lỗi database, hỏi database. Với HTTP 403, nói rõ Odoo từ chối quyền; không mặc định quy lỗi cho API key.
+
+## 5. Gợi ý bước tiếp theo
+
+Khi kết nối thành công, thông báo **Đã hoàn tất cấu hình kết nối Odoo**, nêu hồ sơ và database nhưng không nêu email/API key. Sau đó gọi `request_user_input` với đúng một câu và các lựa chọn:
+
+1. Xuất báo cáo bán hàng thành CSV — `/odoo2sheet-salereport`.
+2. Quản lý hồ sơ, database hoặc thư mục CSV — `/odoo2sheet-help`.
 3. Cập nhật plugin — `/odoo2sheet-upgrade`.
-4. Xóa hồ sơ kết nối hoặc xem hướng dẫn gỡ plugin — `/odoo2sheet-uninstall`.
-5. Hoàn tất ở đây.
+4. Sao lưu, dọn dữ liệu hoặc gỡ plugin — `/odoo2sheet-uninstall`.
+5. Hoàn tất.
 
-Chờ người dùng chọn rồi mới chuyển sang skill tương ứng. Không tự xuất báo cáo sau khi kết nối.
+Chờ lựa chọn rồi tiếp tục thẳng vào luồng tương ứng; không yêu cầu người dùng gọi lại slash command.

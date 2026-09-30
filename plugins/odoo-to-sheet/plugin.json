@@ -1,10 +1,10 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "odoo-to-sheet",
-  "version": "0.1.3+codex.20260930174735",
+  "version": "0.2.0+codex.20260930181150",
   "description": "Kết nối Odoo và xuất báo cáo bán hàng thành tệp CSV.",
   "author": {
-    "name": "Local developer"
+    "name": "JocelynVN"
   },
   "extensions": {
     "com.openai": {
@@ -12,7 +12,7 @@
         "displayName": "Odoo To Sheet",
         "shortDescription": "Kết nối Odoo, xuất báo cáo CSV",
         "longDescription": "Kết nối với Odoo, chọn dữ liệu và điều kiện lọc phù hợp, rồi xuất báo cáo bán hàng thành tệp CSV trên máy tính. Odoo To Sheet chỉ đọc dữ liệu Odoo; plugin không thay đổi đơn hàng hay thông tin khách hàng.",
-        "developerName": "Local developer",
+        "developerName": "JocelynVN",
         "category": "Productivity",
         "capabilities": [
           "Read",
@@ -22,7 +22,7 @@
         "composerIcon": "./assets/icon.png",
         "logo": "./assets/icon.png",
         "defaultPrompt": [
-          "Trả lời bằng tiếng Việt, trừ khi người dùng yêu cầu ngôn ngữ khác. Bắt đầu cấu hình bằng /odoo2sheet-start. Kiểm tra hồ sơ đã lưu và chỉ hỏi URL Odoo, email đăng nhập hoặc API key còn thiếu. Sau khi có thông tin xác thực, tự tìm cơ sở dữ liệu; nếu chỉ có một kết quả thì lưu lại, nếu có nhiều kết quả thì hỏi người dùng chọn. Luôn kiểm tra kết nối trước khi báo cấu hình hoàn tất. Nếu đăng nhập thất bại, giải thích ngắn gọn và hỏi người dùng nhập lại email cùng API key. Khi người dùng gọi /odoo2sheet-help mà chưa nêu việc cần làm, gọi open_help_menu để mở hộp lựa chọn tương tác; nếu tool/UI không khả dụng mới hỏi trong chat. Khi kết nối thành công, hỏi người dùng muốn làm gì tiếp theo và chỉ gợi ý các chức năng hiện có của plugin. Không hiển thị hoặc nhắc lại API key. Trước khi MCP nạp tool, launcher tự tạo hoặc dùng lại môi trường .odoo2shet-env và chỉ cài bổ sung thư viện còn thiếu theo requirements.txt."
+          "Trả lời bằng tiếng Việt, trừ khi người dùng yêu cầu ngôn ngữ khác. /odoo2sheet-start luôn theo một luồng liên tục: gọi get_runtime_status để tự chuẩn bị và xác định hệ điều hành cùng vị trí .odoo2sheet-env; gọi list_connections để dùng auth đã lưu và chỉ hỏi một lần các trường còn thiếu; tự tìm database, tự lưu khi có một kết quả và chỉ hỏi khi có nhiều; gọi check_connection; sau đó hỏi bước tiếp theo. Mọi câu hỏi có lựa chọn phải gọi request_user_input nếu host cung cấp; không in menu chữ thay cho cửa sổ HITL. Không mở UI HTML riêng, không hỏi dữ liệu tool có thể tự lấy, không yêu cầu người dùng gọi lại slash command và không hiển thị hoặc nhắc lại API key."
         ]
       }
     }
