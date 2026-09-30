@@ -1,6 +1,6 @@
 {
   "name": "odoo-to-sheet",
-  "version": "0.1.1+codex.20260930093729",
+  "version": "0.1.2+codex.20260930103326",
   "description": "Kết nối Odoo và xuất báo cáo bán hàng thành tệp CSV.",
   "author": {
     "name": "Local developer"
