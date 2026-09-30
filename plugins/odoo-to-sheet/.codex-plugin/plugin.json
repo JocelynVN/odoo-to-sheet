@@ -1,15 +1,15 @@
 {
   "name": "odoo-to-sheet",
-  "version": "0.1.0+codex.20260929065439",
-  "description": "Kết nối Odoo, chọn bộ lọc và cột báo cáo bán hàng, rồi xuất CSV.",
+  "version": "0.1.1+codex.20260930093729",
+  "description": "Kết nối Odoo và xuất báo cáo bán hàng thành tệp CSV.",
   "author": {
     "name": "Local developer"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Odoo To Sheet",
-    "shortDescription": "Kết nối và xuất báo cáo bán hàng Odoo.",
-    "longDescription": "Kết nối Odoo, lưu hồ sơ cục bộ, chọn bộ lọc và cột cho sale.report, rồi xuất CSV. Dữ liệu nghiệp vụ Odoo chỉ được đọc.",
+    "shortDescription": "Kết nối Odoo, xuất báo cáo CSV",
+    "longDescription": "Kết nối với Odoo, chọn dữ liệu và điều kiện lọc phù hợp, rồi xuất báo cáo bán hàng thành tệp CSV trên máy tính. Odoo To Sheet chỉ đọc dữ liệu Odoo; plugin không thay đổi đơn hàng hay thông tin khách hàng.",
     "developerName": "Local developer",
     "category": "Productivity",
     "capabilities": [
@@ -20,7 +20,7 @@
     "composerIcon": "./assets/icon.png",
     "logo": "./assets/icon.png",
     "defaultPrompt": [
-      "Hướng dẫn bằng tiếng Việt. Khi cần kết nối mới, mở biểu mẫu nhập liệu của /odoo2sheet-connect; chỉ hỏi từng trường trong hội thoại nếu giao diện không hiển thị biểu mẫu. Sau đó tiếp tục /odoo2sheet-salereport để xuất sale.report. Không yêu cầu người dùng tự soạn một đoạn chứa mọi thông tin."
+      "Trả lời bằng tiếng Việt, trừ khi người dùng yêu cầu ngôn ngữ khác. Bắt đầu cấu hình bằng /odoo2sheet-start. Kiểm tra hồ sơ đã lưu và chỉ hỏi URL Odoo, email đăng nhập hoặc API key còn thiếu. Sau khi có thông tin xác thực, tự tìm cơ sở dữ liệu; nếu chỉ có một kết quả thì lưu lại, nếu có nhiều kết quả thì hỏi người dùng chọn. Luôn kiểm tra kết nối trước khi báo cấu hình hoàn tất. Nếu đăng nhập thất bại, giải thích ngắn gọn và hỏi người dùng nhập lại email cùng API key. Khi kết nối thành công, hỏi người dùng muốn làm gì tiếp theo và chỉ gợi ý các chức năng hiện có của plugin. Không hiển thị hoặc nhắc lại API key. Trước khi chạy tool, dùng lại môi trường .odoo2shet-env nếu đã có; nếu chưa có thì tạo đúng thư mục đó. Chỉ cài bổ sung các thư viện còn thiếu theo requirements.txt."
     ]
   },
   "mcpServers": "./.mcp.json"

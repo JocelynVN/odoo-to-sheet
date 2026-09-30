@@ -1,14 +1,14 @@
 # Odoo To Sheet
 
-Dùng GPT Desktop để lấy báo cáo bán hàng từ Odoo và lưu thành file CSV trên máy tính. Plugin chỉ đọc dữ liệu Odoo; nó không sửa đơn hàng hay thông tin khách hàng.
+Dùng ChatGPT Desktop để lấy báo cáo bán hàng từ Odoo và lưu thành file CSV trên máy tính. Plugin chỉ đọc dữ liệu Odoo; nó không sửa đơn hàng hay thông tin khách hàng.
 
 ## Dùng nhanh
 
-1. Mở GPT Desktop, tạo cuộc trò chuyện mới, rồi chọn **Odoo To Sheet** trong menu `+` → **More**. Nếu có ô chọn plugin, cũng có thể gọi `@Odoo To Sheet`.
-2. Lần đầu tiên, nhập `/odoo2sheet-connect` hoặc nhắn **Kết nối Odoo**. Trên giao diện hỗ trợ MCP Apps, plugin mở biểu mẫu tiếng Việt với từng ô riêng và ô mật khẩu cho API key. Nếu giao diện không hiển thị biểu mẫu, plugin hỏi từng trường riêng trong hội thoại. Bạn không cần soạn một đoạn chứa toàn bộ thông tin kết nối.
+1. Mở ChatGPT Desktop, tạo cuộc trò chuyện mới, rồi chọn **Odoo To Sheet** trong menu `+` → **More**. Nếu có ô chọn plugin, cũng có thể gọi `@Odoo To Sheet`.
+2. Lần đầu tiên, nhập `/odoo2sheet-start` hoặc nhắn **Bắt đầu với Odoo To Sheet**. Plugin kiểm tra cấu hình, chỉ hỏi URL/email/API key còn thiếu, tự tìm database và tự lưu nếu chỉ có một. Nếu có nhiều database, bạn chọn bằng HITL trong chat. Nếu auth sai, plugin hỏi nhập lại email/API key.
 3. Để lấy báo cáo, nhập `/odoo2sheet-salereport` kèm yêu cầu, ví dụ: **Lấy báo cáo bán hàng tháng này gồm ngày, đơn hàng, khách hàng, sản phẩm và doanh thu**.
 
-Plugin sẽ đưa ra lựa chọn riêng cho bộ lọc và cột; các cột gợi ý được lấy từ metadata thật của Odoo. Bạn chỉ cần chọn phương án hoặc số cột muốn lấy. Nếu hồ sơ hiện có thiếu tên cơ sở dữ liệu, plugin hỏi riêng giá trị đó và cập nhật hồ sơ mà không yêu cầu nhập lại API key. Sau khi tải xong, GPT Desktop sẽ báo vị trí file CSV.
+Sau khi kết nối thành công, plugin báo cấu hình hoàn tất và hỏi bạn muốn dùng skill nào tiếp theo. Bạn có thể chọn xuất báo cáo bán hàng, hỏi cách sử dụng, quản lý hồ sơ, cập nhật plugin hoặc gỡ/xóa hồ sơ. Gọi `/odoo2sheet-help` nếu bạn muốn xem các lựa chọn phổ biến. Khi xuất báo cáo, bạn có thể nêu khoảng thời gian, điều kiện lọc và cột cần lấy ngay trong một yêu cầu; plugin hỏi phần còn thiếu, đưa cấu hình báo cáo đã lưu ra để bạn xác nhận, rồi chờ xác nhận trước khi tạo CSV.
 
 ## File được lưu ở đâu?
 
@@ -21,19 +21,19 @@ Plugin tự tạo thư mục khi xuất lần đầu. Bạn có thể chọn th�
 
 ## Bảo vệ tài khoản Odoo
 
-API key được lưu trên máy của bạn trong hồ sơ Odoo để không phải nhập lại. File cấu hình không được mã hóa; đừng gửi file này cho người khác hoặc nhập API key trong cuộc trò chuyện được chia sẻ. Plugin không đưa API key vào file CSV và không ghi lại key trong kết quả.
+API key được nhập trong chat riêng, có thể còn trong lịch sử cuộc trò chuyện, rồi lưu trên máy để dùng lần sau. File cấu hình không được mã hóa; đừng gửi file này cho người khác hoặc nhập key trong cuộc trò chuyện được chia sẻ. Plugin không đưa API key vào CSV và không ghi lại key trong kết quả.
 
 ## Cài lần đầu
 
-Nếu bạn không thấy **Odoo To Sheet** trong GPT Desktop, nhờ người quản lý không gian làm việc cài plugin từ [repo Odoo To Sheet trên GitHub](https://github.com/JocelynVN/odoo-to-sheet). Xem [hướng dẫn cài lần đầu](INSTALL.md). Repo GitHub là nguồn cài đặt; plugin chưa nằm trong danh mục công khai để mọi tài khoản tự cài.
+Nếu bạn không thấy **Odoo To Sheet** trong ChatGPT Desktop, nhờ người quản lý không gian làm việc cài plugin từ [repo Odoo To Sheet trên GitHub](https://github.com/JocelynVN/odoo-to-sheet). Xem [hướng dẫn cài lần đầu](INSTALL.md). Repo GitHub là nguồn cài đặt; plugin chưa nằm trong danh mục công khai để mọi tài khoản tự cài.
 
-Plugin này dành cho ứng dụng GPT Desktop. Do cần chạy phần kết nối trên máy người dùng, plugin có thể không dùng được trên GPT web hoặc điện thoại.
+Plugin này dành cho ứng dụng ChatGPT Desktop vì phần kết nối Odoo chạy trên máy người dùng; plugin không dùng được trên ChatGPT web hoặc điện thoại.
 
 ## Cập nhật và gỡ
 
-- Cập nhật: người quản lý GPT Desktop đồng bộ phiên bản mới từ GitHub. Nếu bạn là người quản lý, xem mục **Cập nhật** trong [hướng dẫn cài lần đầu](INSTALL.md).
-- Xóa hồ sơ Odoo: dùng `/odoo2sheet-uninstall` và chọn có giữ thông tin kết nối hay không. File CSV đã xuất không bị xóa. Để gỡ plugin khỏi không gian làm việc, nhờ người quản lý tắt hoặc gỡ plugin.
+- Cập nhật: người quản lý ChatGPT Desktop đồng bộ phiên bản mới từ GitHub. Nếu bạn là người quản lý, xem mục **Cập nhật** trong [hướng dẫn cài lần đầu](INSTALL.md).
+- Dọn dữ liệu và gỡ Odoo To Sheet: dùng `/odoo2sheet-uninstall`. Skill sẽ xem trước cấu hình, CSV và `.odoo2shet-env`, yêu cầu bạn sao lưu CSV và xác nhận trong chat trước khi xóa. Sau khi dọn cục bộ, plugin hướng dẫn gỡ trong danh mục Plugins nếu có nút **Uninstall plugin**; plugin workspace cần quản trị viên xử lý.
 
 ## Hỗ trợ
 
-Nếu kết nối hoặc xuất báo cáo không thành công, gửi cho người hỗ trợ nội dung lỗi mà GPT Desktop hiển thị. Không gửi API key, file cấu hình, hay dữ liệu CSV chứa thông tin nhạy cảm.
+Nếu kết nối hoặc xuất báo cáo không thành công, gửi cho người hỗ trợ nội dung lỗi mà ChatGPT Desktop hiển thị. Không gửi API key, file cấu hình, hay dữ liệu CSV chứa thông tin nhạy cảm.

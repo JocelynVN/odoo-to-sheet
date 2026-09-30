@@ -56,7 +56,7 @@ def add_profile() -> None:
     }
     save_profiles(profiles)
     print(f"Đã lưu hồ sơ `{name}` tại {config_path()}. Thông tin xác thực không được hiển thị.")
-    print("Dùng công cụ plugin `list_connections` và `describe_model` để xác nhận quyền truy cập.")
+    print("Dùng công cụ plugin `list_connections` và `check_connection` để kiểm tra đăng nhập; dùng `describe_model` để kiểm tra quyền truy cập model.")
 
 
 def list_profiles() -> None:
