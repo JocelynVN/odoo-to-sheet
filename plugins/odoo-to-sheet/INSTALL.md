@@ -69,5 +69,6 @@ Marketplace mới được kiểm tra thay đổi hằng ngày. Sau khi sync, qu
 
 - Không thấy **Import marketplace**: bạn cần tài khoản quản trị không gian làm việc. Gửi trang GitHub này cho quản trị viên.
 - Không thấy **Odoo To Sheet** sau khi cài: nhờ quản trị viên kiểm tra quyền **Available/Installed** và quyền chia sẻ.
+- Đã chọn plugin nhưng `/odoo2sheet-start` báo không có công cụ: nhờ quản trị viên đồng bộ marketplace/cập nhật Odoo To Sheet lên phiên bản mới nhất, sau đó mở cuộc trò chuyện mới và chọn lại plugin. Không gửi thông tin đăng nhập cho đến khi plugin khả dụng.
 - Không kết nối được Odoo: kiểm tra lại địa chỉ Odoo, email, API key và quyền truy cập báo cáo bán hàng. Không gửi API key cho bộ phận hỗ trợ.
 - Nếu địa chỉ Odoo bắt đầu bằng `http://` thay vì `https://`, kết nối không mã hóa. Chỉ tiếp tục nếu bạn hiểu và chấp nhận rủi ro này.
