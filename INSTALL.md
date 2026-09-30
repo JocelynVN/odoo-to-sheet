@@ -1,17 +1,17 @@
-# Cài Odoo To Sheet vào GPT Desktop
+# Cài Odoo To Sheet vào ChatGPT Desktop
 
-Hướng dẫn này dành cho người dùng và người quản lý GPT Desktop. Người dùng cuối không cần dùng Terminal hoặc biết lập trình. Plugin chỉ hoạt động trong GPT Desktop, không dùng trong GPT trên web hoặc điện thoại.
+Hướng dẫn này dành cho người dùng và người quản lý ChatGPT Desktop. Người dùng cuối không cần dùng Terminal hoặc biết lập trình. Plugin chỉ hoạt động trong ChatGPT Desktop, không dùng trong ChatGPT web hoặc điện thoại.
 
 ## Nếu bạn chỉ muốn sử dụng plugin
 
 Người quản lý không gian làm việc cần cài plugin một lần trước. Khi họ báo đã cài:
 
-1. Mở GPT Desktop và tạo cuộc trò chuyện mới.
-2. Chọn **Odoo To Sheet** trong menu `+` → **More**. Nếu GPT Desktop hỏi xác nhận cài đặt, chọn **Install plugin**.
+1. Mở ChatGPT Desktop và tạo cuộc trò chuyện mới.
+2. Chọn **Odoo To Sheet** trong menu `+` → **More**. Nếu ChatGPT Desktop hỏi xác nhận cài đặt, chọn **Install plugin**.
 3. Nếu không thấy plugin, nhờ người quản lý kiểm tra rằng plugin đã được bật cho tài khoản của bạn.
-4. Gõ `/odoo2sheet-connect` hoặc nhắn **Kết nối Odoo** để bắt đầu.
+4. Gõ `/odoo2sheet-start` hoặc nhắn **Bắt đầu với Odoo To Sheet** để bắt đầu.
 
-Tài khoản cá nhân không có mục **Workspace settings → Plugins** cần nhờ người quản lý cài plugin giúp. Chỉ tải repo trên GitHub về máy thì plugin chưa tự xuất hiện trong GPT Desktop.
+Nếu bạn không có quyền quản trị workspace, nhờ quản trị viên cài và bật plugin cho tài khoản của bạn. Chỉ tải repo trên GitHub về máy thì plugin chưa tự xuất hiện trong ChatGPT Desktop.
 
 ## Cài plugin trong không gian làm việc
 
@@ -19,7 +19,7 @@ Tài khoản cá nhân không có mục **Workspace settings → Plugins** cần
 
 Repo GitHub đã có danh mục cài đặt ở thư mục gốc. Người quản trị làm theo các bước sau trong ChatGPT:
 
-1. Mở **Workspace settings → Plugins**.
+1. Mở **Admin → Plugins**.
 2. Chọn **Add → Import marketplace**.
 3. Trong ô **Source**, nhập `https://github.com/JocelynVN/odoo-to-sheet`.
 4. Để trống ô **Path** và **Branch** để dùng nhánh mặc định của repo.
@@ -27,20 +27,18 @@ Repo GitHub đã có danh mục cài đặt ở thư mục gốc. Người quả
 6. Mở plugin **Odoo To Sheet** vừa nhập. Chọn **Available** để mọi người tự cài, hoặc **Installed** để tự cài cho nhóm người được chọn.
 7. Đặt quyền chia sẻ plugin cho đúng nhóm trong không gian làm việc.
 
-Sau khi quản trị viên hoàn tất, người dùng làm theo mục **Nếu bạn chỉ muốn sử dụng plugin** ở trên. Hướng dẫn chính thức về [nhập marketplace từ GitHub](https://help.openai.com/en/articles/20001504-importing-and-syncing-plugin-marketplaces-from-github) và [sử dụng plugin trong ChatGPT](https://help.openai.com/en/articles/20001256-plugins-in-chatgpt-and-codex).
+Sau khi quản trị viên hoàn tất, người dùng làm theo mục **Nếu bạn chỉ muốn sử dụng plugin** ở trên. Xem hướng dẫn chính thức về [quản lý và đồng bộ marketplace](https://learn.chatgpt.com/docs/enterprise/plugin-management) và [cài đặt, sử dụng, gỡ plugin](https://learn.chatgpt.com/docs/plugins).
 
 ## Kết nối Odoo lần đầu
 
-Trong cuộc trò chuyện đã chọn plugin, gõ `/odoo2sheet-connect` hoặc nhắn **Kết nối Odoo**. Chuẩn bị:
+Trong cuộc trò chuyện đã chọn plugin, gõ `/odoo2sheet-start` hoặc nhắn **Bắt đầu với Odoo To Sheet**. Chuẩn bị:
 
 - Địa chỉ trang Odoo của công ty, ví dụ `https://congty.odoo.com`.
 - Email dùng để đăng nhập Odoo.
 - API key do Odoo cấp.
-- Tên cơ sở dữ liệu nếu Odoo yêu cầu.
-- Tên dễ nhớ cho hồ sơ, ví dụ `cong-ty`.
-- Nếu muốn, đường dẫn thư mục để lưu CSV. Mặc định là thư mục `odoo2sheet-output` trong thư mục cá nhân trên máy.
+- Nếu muốn đổi, đường dẫn thư mục để lưu CSV. Mặc định là thư mục `odoo2sheet-output` trong thư mục cá nhân trên máy.
 
-GPT Desktop sẽ hỏi lần lượt và kiểm tra kết nối. API key được lưu trên máy để dùng lần sau; file cấu hình là văn bản chưa mã hóa. Chỉ kết nối trong cuộc trò chuyện riêng và không gửi file cấu hình cho người khác.
+ChatGPT Desktop kiểm tra hồ sơ đã lưu và hỏi từng thông tin còn thiếu trong chat. Sau khi nhận auth, plugin tự tìm database; nếu chỉ có một, plugin tự lưu, còn nếu có nhiều thì hỏi bạn chọn bằng số. Nếu máy chủ không cho liệt kê, plugin sẽ hỏi tên database. Khi đăng nhập sai, plugin hỏi nhập lại email và API key. API key được nhập trong cuộc trò chuyện riêng, có thể còn trong lịch sử chat và được lưu trong file cấu hình cục bộ chưa mã hóa; plugin sẽ thông báo điều này trước khi hỏi key. Sau khi kết nối thành công, plugin hỏi bạn muốn dùng skill nào tiếp theo. Gõ `/odoo2sheet-help` để xem các lựa chọn và hướng dẫn phổ biến.
 
 ## Xuất báo cáo CSV
 
@@ -48,30 +46,24 @@ Gõ `/odoo2sheet-salereport` hoặc viết yêu cầu bằng lời, ví dụ:
 
 > Lấy báo cáo bán hàng từ đầu tháng đến hôm nay, gồm ngày, số đơn, khách hàng, sản phẩm, số lượng và doanh thu.
 
-Plugin sẽ hỏi:
+Bạn có thể nêu khoảng thời gian, điều kiện lọc và cột ngay trong yêu cầu. Plugin hỏi trong chat về phần còn thiếu, dùng cấu hình đã lưu làm đề xuất để bạn xác nhận và chỉ gợi ý cột có thật trên Odoo. Trước khi xuất, plugin tóm tắt bộ lọc, cột và giới hạn dòng rồi chờ bạn xác nhận. Sau lần đầu dùng cấu hình mới, plugin hỏi bạn có muốn lưu để dùng lần sau không.
 
-1. Dùng lại bộ lọc đã lưu hay chọn bộ lọc mới.
-2. Dùng lại các cột đã lưu hay chọn cột mới.
-3. Có lưu lựa chọn mới để dùng lần sau không.
-
-Chọn một phương án trong danh sách hoặc mô tả điều bạn muốn lọc/lấy. Plugin chỉ gợi ý cột có thật trên dịch vụ Odoo đang kết nối.
-
-Sau khi xuất xong, GPT Desktop sẽ báo số dòng và đường dẫn file. Mặc định file nằm trong `odoo2sheet-output` ở thư mục cá nhân của bạn. Tên file có tên báo cáo và thời điểm xuất; file cũ không bị ghi đè.
+Sau khi xuất xong, ChatGPT Desktop sẽ báo số dòng và đường dẫn file. Mặc định file nằm trong `odoo2sheet-output` ở thư mục cá nhân của bạn. Tên file có tên báo cáo và thời điểm xuất; file cũ không bị ghi đè.
 
 ## Cập nhật phiên bản
 
 Người quản trị marketplace GitHub có thể đồng bộ ngay khi muốn cập nhật:
 
-1. Mở **Workspace settings → Plugins**.
-2. Mở mục **Marketplaces** và chọn marketplace **Odoo To Sheet**.
+1. Mở **Admin → Plugins → Marketplaces**.
+2. Chọn marketplace đang cung cấp Odoo To Sheet.
 3. Chọn **Sync now**.
 
-ChatGPT cũng tự kiểm tra thay đổi hằng ngày. Người dùng thông thường không cần tải lại repo hoặc chạy lệnh cập nhật. Có thể nhắn `/odoo2sheet-upgrade`; nếu bạn không phải quản trị viên, plugin sẽ hướng dẫn liên hệ người quản lý để đồng bộ.
+Marketplace mới được kiểm tra thay đổi hằng ngày. Sau khi sync, quản trị viên cần xem trạng thái và báo cáo để biết plugin đã cập nhật thành công hay có lỗi. Người dùng thông thường không cần tải lại repo hoặc chạy lệnh cập nhật. Có thể nhắn `/odoo2sheet-upgrade`; nếu bạn không phải quản trị viên, plugin sẽ hướng dẫn liên hệ người quản lý để đồng bộ.
 
 ## Gỡ plugin hoặc xóa hồ sơ kết nối
 
-- Để xóa hồ sơ Odoo lưu trên máy, dùng `/odoo2sheet-uninstall` và chọn giữ hay xóa các hồ sơ. File CSV đã xuất vẫn được giữ lại.
-- Để tắt plugin cho không gian làm việc, người quản trị vào **Workspace settings → Plugins**, mở **Odoo To Sheet** và chọn tắt hoặc đổi quyền sử dụng. Việc tắt plugin không tự xóa hồ sơ Odoo trên từng máy.
+- Để dọn dữ liệu local trước khi gỡ, dùng `/odoo2sheet-uninstall`. Plugin sẽ xem trước file cấu hình, CSV trong các thư mục output và `.odoo2shet-env`; bạn cần xác nhận đã sao lưu CSV và xác nhận xóa trong chat. Không có bước nào xóa dữ liệu trước khi bạn xác nhận.
+- Với plugin cài riêng, mở tab **Plugins → Installed**, mở Odoo To Sheet và chọn **Uninstall plugin** nếu tùy chọn này có sẵn. Plugin workspace-installed hoặc plugin mặc định có thể không có nút gỡ; khi đó nhờ quản trị viên quản lý plugin trong **Admin → Plugins**. Không xóa cả marketplace chỉ để gỡ một plugin.
 
 ## Nếu không cài được
 

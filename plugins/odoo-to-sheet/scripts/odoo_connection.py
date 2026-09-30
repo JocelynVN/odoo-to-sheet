@@ -1,4 +1,4 @@
-"""Read-only Odoo client supporting legacy XML-RPC and Odoo 19+ JSON-2."""
+"""Read-only Odoo client supporting database discovery, XML-RPC, and JSON-2."""
 
 from __future__ import annotations
 
@@ -82,7 +82,7 @@ def read_config(*, allow_missing: bool = False) -> dict[str, Any]:
         if allow_missing:
             return {"profiles": {}, "report_preferences": {}}
         raise OdooError(
-            "Chưa cấu hình kết nối Odoo. Hãy dùng `/odoo2sheet-connect` để thêm kết nối."
+            "Chưa cấu hình kết nối Odoo. Hãy dùng `/odoo2sheet-start` để bắt đầu cấu hình."
         )
     _secure_permissions(CONFIG_PATH)
     try:
@@ -148,7 +148,7 @@ def config_path() -> Path:
 
 
 class OdooClient:
-    """Only exposes Odoo fields_get and search_read, never arbitrary methods."""
+    """Exposes explicit read-only Odoo operations, never arbitrary methods."""
 
     def __init__(self, profile_name: str, profile: dict[str, Any]):
         self.profile_name = profile_name
@@ -235,6 +235,65 @@ class OdooClient:
 
     def _uses_json2(self) -> bool:
         return self.profile["auth_type"] == "api_key" and (self._detect_major_version() or 0) >= 19
+
+    def list_databases(self) -> list[str]:
+        """Discover databases through JSON-2 or the legacy XML-RPC database service."""
+        major_version = self._detect_major_version()
+        json2_error: OdooError | None = None
+        if self.profile.get("auth_type") == "api_key" and major_version is not None and major_version >= 19:
+            try:
+                result = self._json2_execute("odoo.database", "list", {})
+                if isinstance(result, dict):
+                    result = result.get("databases", result.get("result"))
+                if isinstance(result, list):
+                    databases = sorted({item.strip() for item in result if isinstance(item, str) and item.strip()})
+                    if databases:
+                        return databases
+            except OdooError as exc:
+                json2_error = exc
+                if "HTTP 401" in str(exc):
+                    raise OdooError("Xác thực Odoo thất bại khi tìm database. Hãy kiểm tra API key.") from None
+
+        try:
+            database_service = _xmlrpc_proxy(self.base_url + "/xmlrpc/2/db")
+            result = database_service.list()
+            if not isinstance(result, list):
+                raise OdooError("Odoo không trả về danh sách database hợp lệ.")
+            return sorted({item.strip() for item in result if isinstance(item, str) and item.strip()})
+        except OdooError:
+            raise
+        except (xmlrpc.client.Fault, xmlrpc.client.ProtocolError, OSError, TimeoutError):
+            if json2_error:
+                raise OdooError("Odoo không cho phép tự lấy danh sách database. Hãy nhập tên database thủ công.") from None
+            raise OdooError("Không thể tự lấy danh sách database từ Odoo. Hãy nhập tên database thủ công.") from None
+
+    def check_connection(self) -> None:
+        """Verify authentication without depending on access to a business model."""
+        if self._uses_json2():
+            self._json2_execute("res.users", "context_get", {})
+            return
+
+        database = str(self.profile.get("database", "")).strip()
+        if not database:
+            raise OdooError("Kết nối XML-RPC cần tên database trước khi kiểm tra đăng nhập.")
+        try:
+            common = _xmlrpc_proxy(self.base_url + "/xmlrpc/2/common")
+            uid = common.authenticate(
+                database, self.profile["username"], self.profile["secret"], {}
+            )
+            if not uid:
+                raise OdooError(
+                    "Xác thực Odoo thất bại. Hãy kiểm tra database, email đăng nhập và API key."
+                )
+        except OdooError:
+            raise
+        except xmlrpc.client.Fault as exc:
+            message = str(exc.faultString).split("\n", 1)[0]
+            raise OdooError(self._redact(f"Odoo từ chối xác thực: {message}")) from None
+        except (xmlrpc.client.ProtocolError, OSError, TimeoutError) as exc:
+            raise OdooError(
+                f"Không thể kiểm tra đăng nhập XML-RPC: {self._redact(str(exc))}"
+            ) from None
 
     def _xmlrpc_execute(self, model: str, method: str, args: list[Any], kwargs: dict[str, Any]) -> Any:
         database = str(self.profile.get("database", "")).strip()

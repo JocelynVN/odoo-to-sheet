@@ -3,7 +3,7 @@
     "odoo2sheet": {
       "type": "stdio",
       "command": "python3",
-      "args": ["scripts/odoo_mcp_server.py"],
+      "args": ["scripts/run_odoo_mcp_server.py"],
       "cwd": ".",
       "env_vars": ["ODOO2SHEET_CONFIG"]
     }

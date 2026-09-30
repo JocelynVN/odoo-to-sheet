@@ -1,0 +1,2 @@
+# Add third-party runtime dependencies here only when an MCP tool needs them.
+# The current Odoo MCP server uses Python's standard library only.
